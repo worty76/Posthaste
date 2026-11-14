@@ -36,6 +36,9 @@ pub enum CoreError {
     #[error("That file isn't a Posthaste export: {0}")]
     InvalidImport(String),
 
+    #[error("{0}")]
+    InvalidLook(String),
+
     #[error("Database error: {0}")]
     Sqlite(#[source] rusqlite::Error),
 
@@ -57,6 +60,7 @@ impl CoreError {
             CoreError::NewerSchema { .. } => "db_newer_schema",
             CoreError::Migration { .. } => "db_migration",
             CoreError::InvalidImport(_) => "invalid_import",
+            CoreError::InvalidLook(_) => "look_invalid",
             CoreError::Sqlite(_) => "db",
             CoreError::Io(_) => "io",
             CoreError::Json(_) => "json",
