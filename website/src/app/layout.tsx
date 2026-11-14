@@ -37,7 +37,7 @@ export const metadata: Metadata = {
       "Press a shortcut anywhere, type, press Enter. Local-first, no account, no network requests.",
     images: ["/og.png"],
   },
-  icons: { icon: "/logo-256.png" },
+  icons: { icon: "/logo-256.png?v=2" },
   ...(PRODUCT.siteUrl
     ? { metadataBase: new URL(PRODUCT.siteUrl), alternates: { canonical: "/" } }
     : {}),
