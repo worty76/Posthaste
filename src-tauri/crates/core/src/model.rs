@@ -74,6 +74,21 @@ pub struct Counts {
     pub archive: i64,
 }
 
+/// How many rows of each glance group are returned. The `done` and `total`
+/// counts are computed over every matching note and are never capped.
+pub const GLANCE_GROUP_LIMIT: i64 = 50;
+
+/// What the Today window shows for one day: open notes carried over from
+/// before it, notes that belong to it, and how many of them are done.
+/// Carry-over is derived, never written: nothing here moves or rewrites notes.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct Glance {
+    pub carried: Vec<Note>,
+    pub today: Vec<Note>,
+    pub done: i64,
+    pub total: i64,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Draft {
     pub content: String,

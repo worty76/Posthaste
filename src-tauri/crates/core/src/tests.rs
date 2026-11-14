@@ -814,3 +814,110 @@ fn the_database_rejects_rows_that_bypass_validation() {
     assert!(insert("fine", "pinned").is_err());
     assert!(insert("fine", "inbox").is_ok());
 }
+
+// ---- glance (the Today window) ----------------------------------------------
+
+const DAY_FROM: i64 = 1_000_000;
+const DAY_TO: i64 = DAY_FROM + 86_400_000;
+
+fn glance(db: &Db) -> Glance {
+    db.glance(DAY_FROM, DAY_TO).unwrap()
+}
+
+#[test]
+fn glance_on_an_empty_database_is_empty() {
+    let g = glance(&db());
+    assert!(g.carried.is_empty());
+    assert!(g.today.is_empty());
+    assert_eq!((g.done, g.total), (0, 0));
+}
+
+#[test]
+fn glance_carries_open_notes_from_before_today() {
+    let mut db = db();
+    let carried = db.create_note_at(note("carried"), DAY_FROM - 1).unwrap();
+    let old_done = db.create_note_at(note("old done"), DAY_FROM - 1).unwrap();
+    db.set_status_at(&old_done.id, Status::Completed, DAY_FROM - 1).unwrap();
+
+    let g = glance(&db);
+    assert_eq!(contents(&g.carried), ["carried"]);
+    assert_eq!(g.carried[0].id, carried.id);
+    assert!(g.today.is_empty());
+    assert_eq!((g.done, g.total), (0, 1));
+}
+
+#[test]
+fn glance_includes_notes_created_today_open_and_done() {
+    let mut db = db();
+    let done_note = db.create_note_at(note("made today"), DAY_FROM + 100).unwrap();
+    db.set_status_at(&done_note.id, Status::Completed, DAY_FROM + 200).unwrap();
+    db.create_note_at(note("open today"), DAY_FROM + 300).unwrap();
+
+    let g = glance(&db);
+    assert_eq!(contents(&g.today), ["open today", "made today"]);
+    assert!(g.carried.is_empty());
+    assert_eq!((g.done, g.total), (1, 2));
+}
+
+#[test]
+fn glance_counts_old_notes_completed_today_as_done() {
+    let mut db = db();
+    let n = db.create_note_at(note("finished late"), DAY_FROM - 5000).unwrap();
+    db.set_status_at(&n.id, Status::Completed, DAY_FROM + 10).unwrap();
+
+    let g = glance(&db);
+    assert_eq!(contents(&g.today), ["finished late"]);
+    assert!(g.carried.is_empty());
+    assert_eq!((g.done, g.total), (1, 1));
+}
+
+#[test]
+fn glance_excludes_archived_and_trashed() {
+    let mut db = db();
+    let archived = db.create_note_at(note("archived today"), DAY_FROM + 100).unwrap();
+    db.set_status_at(&archived.id, Status::Archived, DAY_FROM + 150).unwrap();
+    let trashed = db.create_note_at(note("trashed today"), DAY_FROM + 200).unwrap();
+    db.trash_note(&trashed.id).unwrap();
+
+    let g = glance(&db);
+    assert!(g.carried.is_empty() && g.today.is_empty());
+    assert_eq!((g.done, g.total), (0, 0));
+}
+
+#[test]
+fn glance_respects_day_bounds() {
+    let mut db = db();
+    db.create_note_at(note("at from"), DAY_FROM).unwrap();
+    db.create_note_at(note("at to"), DAY_TO).unwrap();
+
+    let g = glance(&db);
+    assert_eq!(contents(&g.today), ["at from"]);
+    assert!(g.carried.is_empty());
+    assert_eq!(g.total, 1);
+}
+
+#[test]
+fn completing_a_carried_note_moves_it_to_today_and_counts_it() {
+    let mut db = db();
+    let n = db.create_note_at(note("carried"), DAY_FROM - 1).unwrap();
+    assert_eq!(glance(&db).done, 0);
+
+    db.set_status_at(&n.id, Status::Completed, DAY_FROM + 5_000).unwrap();
+    let g = glance(&db);
+    assert!(g.carried.is_empty());
+    assert_eq!(contents(&g.today), ["carried"]);
+    assert_eq!((g.done, g.total), (1, 1));
+}
+
+#[test]
+fn glance_caps_each_list_but_not_the_counts() {
+    let mut db = db();
+    for i in 0..60 {
+        db.create_note_at(note(&format!("carried {i}")), DAY_FROM - 1 - i).unwrap();
+    }
+    let g = glance(&db);
+    assert_eq!(g.carried.len(), 50);
+    assert_eq!(contents(&g.carried)[0], "carried 0");
+    assert!(g.today.is_empty());
+    assert_eq!(g.total, 60);
+}
