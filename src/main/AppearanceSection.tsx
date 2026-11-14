@@ -5,6 +5,7 @@ import { Dialog } from "../components/Dialog";
 import { copyText } from "../lib/clipboard";
 import { api, on, toAppError } from "../lib/ipc";
 import type { LookDoc, LookSummary, ResolvedLook, Settings } from "../lib/types";
+import { LookEditor } from "./LookEditor";
 import { Swatch } from "./Swatch";
 
 interface AppearanceSectionProps {
@@ -266,6 +267,20 @@ export function AppearanceSection({
           The look is removed from this computer. Copies you shared with others keep working.
         </p>
       </Dialog>
+
+      {editor && (
+        <LookEditor
+          open
+          initial={editor.initial}
+          editingId={editor.editingId}
+          onPreview={onPreviewLook}
+          onClose={() => setEditor(null)}
+          onSaved={(summary) => {
+            void set({ look_id: summary.id });
+            notify(`Saved "${summary.name}"`);
+          }}
+        />
+      )}
     </>
   );
 }

@@ -416,6 +416,35 @@
   fill: var(--accent);
 }
 
+/* ---- Look editor ---- */
+.look-editor {
+  display: grid;
+  gap: var(--s-3);
+}
+.look-editor__colors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-2) var(--s-3);
+}
+.look-editor__color {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.look-editor__color .field {
+  flex: 1;
+  min-width: 0;
+}
+.look-editor__color input[type="color"] {
+  flex: none;
+  width: 34px;
+  height: 30px;
+  padding: 2px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--bg-sunken);
+}
+
 /* ---- Settings ---- */
 .settings {
   display: grid;
