@@ -12,7 +12,9 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "test": "vitest run",
     "tauri": "tauri",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test"
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run check:rules && npm run test",
+    "check:rules": "bash scripts/check-rules.sh",
+    "sync:rules": "bash scripts/sync-rules.sh"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",

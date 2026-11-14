@@ -53,6 +53,15 @@ npm run check                                  # tsc, eslint, prettier, vitest
 scripts/e2e-linux.sh                           # real-window capture flow, Linux/X11
 ```
 
+## Rules for contributors and AI agents
+
+`AGENTS.md` at the root and in `src/`, `src/styles/`, `src-tauri/`,
+`src-tauri/crates/core/` and `src-tauri/crates/platform/` state the rules for
+each layer: what belongs there, what never happens, and how to add a feature.
+`CLAUDE.md` files are generated copies for Claude Code (`npm run sync:rules`).
+`scripts/check-rules.sh` enforces the rules a grep can check and runs as part
+of `npm run check`.
+
 ## Using it
 
 **Capture window**
