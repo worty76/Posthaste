@@ -7,7 +7,7 @@ export const PRODUCT = {
   version: "0.1.0",
   repoUrl: "https://github.com/worty76/Posthaste",
   /** Set when the site has a permanent home; canonical and share URLs use it. */
-  siteUrl: null as string | null,
+  siteUrl: "https://posthaste.worty.id.vn" as string | null,
   /** Real download URLs per platform; null = not released there yet. */
   downloads: {
     mac: null,
