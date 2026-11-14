@@ -3030,7 +3030,7 @@ dependencies = [
 
 [[package]]
 name = "posthaste"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "log",
  "posthaste-core",
@@ -3053,7 +3053,7 @@ dependencies = [
 
 [[package]]
 name = "posthaste-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "log",
  "rusqlite",
@@ -3067,7 +3067,7 @@ dependencies = [
 
 [[package]]
 name = "posthaste-platform"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "log",
  "objc2",

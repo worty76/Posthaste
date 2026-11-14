@@ -71,6 +71,14 @@ are in `crates/platform`).
 - No new Tauri capability, plugin, or CSP relaxation without asking.
   `capabilities/default.json` lists the minimum; keep it that way.
 
+## Releases
+
+- The version lives in exactly one place: `version` under
+  `[workspace.package]` in `Cargo.toml`. `tauri.conf.json` and `package.json`
+  intentionally have no version field; Tauri resolves it from Cargo.toml for
+  the bundle, the updater manifest, the frontend's `app_info`, and the CI
+  release tag. Bumping it there is the whole release.
+
 ## Style
 
 - `cargo fmt` and `cargo clippy --all-targets -- -D warnings` clean.

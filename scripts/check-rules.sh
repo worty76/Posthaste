@@ -47,6 +47,9 @@ rule "No unwrap()/expect() in non-test Rust; return an error (src-tauri/AGENTS.m
       | grep -v '/tests.rs:' | grep -v 'could not start' \
       | awk -F: '{ if (system("awk \"NR<" $2 " && /#\\[cfg\\(test\\)\\]/ {f=1} END {exit !f}\" " $1) != 0) print }')"
 
+rule "The version lives only in src-tauri/Cargo.toml [workspace.package] (src-tauri/AGENTS.md)" \
+  "$(grep -n '"version"' src-tauri/tauri.conf.json package.json)"
+
 rule "CLAUDE.md copies are out of date; run: npm run sync:rules (AGENTS.md)" \
   "$(bash scripts/sync-rules.sh --check)"
 
