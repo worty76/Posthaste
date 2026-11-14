@@ -15,7 +15,7 @@ export const defaultSettings: Settings = {
   hide_on_blur: true,
   enter_behavior: "save",
   draft_retention: "forever",
-  look_id: null,
+  look_id: "builtin:ink",
 };
 
 export function settingsState(patch: Partial<Settings> = {}): SettingsState {

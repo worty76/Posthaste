@@ -150,7 +150,8 @@ pub struct Settings {
     pub hide_on_blur: bool,
     pub enter_behavior: EnterBehavior,
     pub draft_retention: DraftRetention,
-    /// The selected look, `None` for the Default look (system/light/dark).
+    /// The selected look. `None` is the Default look (system/light/dark);
+    /// out of the box every install wears Ink.
     pub look_id: Option<String>,
 }
 
@@ -167,7 +168,7 @@ impl Default for Settings {
             hide_on_blur: true,
             enter_behavior: EnterBehavior::Save,
             draft_retention: DraftRetention::Forever,
-            look_id: None,
+            look_id: Some(crate::look::DEFAULT_LOOK_ID.into()),
         }
     }
 }

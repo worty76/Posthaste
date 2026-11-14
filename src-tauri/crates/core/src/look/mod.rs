@@ -17,6 +17,8 @@ use crate::error::{CoreError, Result};
 use color::{contrast, Rgb};
 
 pub const LOOK_FORMAT: &str = "posthaste-look";
+/// The look a fresh install wears until the user picks one.
+pub const DEFAULT_LOOK_ID: &str = "builtin:ink";
 pub const LOOK_VERSION: u32 = 1;
 pub const MAX_NAME_CHARS: usize = 40;
 pub const MAX_DOC_BYTES: usize = 4096;

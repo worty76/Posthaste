@@ -846,16 +846,9 @@ mod store_tests {
     #[test]
     fn the_active_look_follows_settings_and_falls_back_to_none() {
         let mut db = Db::open_in_memory().unwrap();
-        assert_eq!(db.active_look().unwrap(), None);
-
-        db.save_settings(&Settings {
-            look_id: Some("builtin:ink".into()),
-            ..Default::default()
-        })
-        .unwrap();
-        let active = db.active_look().unwrap().expect("ink resolves");
-        assert_eq!(active.id, "builtin:ink");
-        assert_eq!(active.name, "Ink");
+        // Ink is the factory default look.
+        let active = db.active_look().unwrap().expect("factory default resolves");
+        assert_eq!(active.id, crate::look::DEFAULT_LOOK_ID);
 
         db.save_settings(&Settings {
             look_id: Some("user:missing".into()),
@@ -920,12 +913,27 @@ mod store_tests {
     }
 
     #[test]
-    fn settings_default_to_no_look_and_tolerate_older_settings() {
+    fn settings_default_to_ink_and_older_settings_adopt_it() {
         let db = Db::open_in_memory().unwrap();
-        assert_eq!(db.load_settings().unwrap().look_id, None);
+        assert_eq!(
+            db.load_settings().unwrap().look_id,
+            Some(crate::look::DEFAULT_LOOK_ID.into())
+        );
+        // Settings saved before looks existed adopt the factory default…
         db.conn()
             .execute(
                 "INSERT OR REPLACE INTO settings (key, value) VALUES ('settings', '{\"theme\":\"dark\"}')",
+                [],
+            )
+            .unwrap();
+        assert_eq!(
+            db.load_settings().unwrap().look_id,
+            Some(crate::look::DEFAULT_LOOK_ID.into())
+        );
+        // …while an explicit "no look" (the user picked Default) is kept.
+        db.conn()
+            .execute(
+                "INSERT OR REPLACE INTO settings (key, value) VALUES ('settings', '{\"theme\":\"dark\",\"look_id\":null}')",
                 [],
             )
             .unwrap();
