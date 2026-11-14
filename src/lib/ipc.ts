@@ -68,7 +68,7 @@ export const api = {
 
   /** Looks for a newer release. Null means the app is current. */
   checkForUpdate: async (): Promise<UpdateInfo | null> => {
-    const update = await check();
+    const update = await fetchUpdate();
     return update
       ? {
           version: update.version,
@@ -79,12 +79,30 @@ export const api = {
   },
   /** Downloads, installs and restarts. Throws when the download fails. */
   installUpdate: async (): Promise<void> => {
-    const update = await check();
+    const update = await fetchUpdate();
     if (!update) return;
-    await update.downloadAndInstall();
+    try {
+      await update.downloadAndInstall();
+    } catch {
+      throw new Error("The update could not be installed. Try again from Settings → Updates.");
+    }
     await relaunch();
   },
 };
+
+/** The updater's own errors name transport details the user can't act on. */
+async function fetchUpdate() {
+  try {
+    return await check();
+  } catch (e) {
+    throw new Error(
+      /release json/i.test(String(e))
+        ? "No update information has been published yet. Try again later."
+        : "Could not reach the update server. Check your internet connection and try again.",
+      { cause: e },
+    );
+  }
+}
 
 export interface Events {
   "notes-changed": null;
