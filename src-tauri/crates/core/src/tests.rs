@@ -660,7 +660,7 @@ fn reopening_is_idempotent() {
         assert_eq!(db.get_note(&id).unwrap().content, "persisted");
     }
     // No upgrade happened, so no snapshot was written.
-    assert_eq!(std::fs::read_dir(dir.path()).unwrap().count() <= 3, true);
+    assert!(std::fs::read_dir(dir.path()).unwrap().count() <= 3);
 }
 
 #[test]

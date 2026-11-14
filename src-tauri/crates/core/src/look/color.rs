@@ -59,7 +59,9 @@ fn channel_luminance(c: u8) -> f64 {
 
 /// WCAG 2.x relative luminance.
 pub fn luminance(c: Rgb) -> f64 {
-    0.2126 * channel_luminance(c.r) + 0.7152 * channel_luminance(c.g) + 0.0722 * channel_luminance(c.b)
+    0.2126 * channel_luminance(c.r)
+        + 0.7152 * channel_luminance(c.g)
+        + 0.0722 * channel_luminance(c.b)
 }
 
 /// WCAG contrast ratio, 1.0 to 21.0, symmetric in its arguments.
