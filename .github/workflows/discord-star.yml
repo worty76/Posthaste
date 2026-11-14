@@ -1,0 +1,46 @@
+# Posts a message to the Discord webhook (secret DISCORD_WEBHOOK) whenever
+# someone stars the repository. The webhook URL lives only in Actions
+# secrets — never commit it.
+#
+# One-time setup:
+#   1. Discord: channel -> Edit channel -> Integrations -> Webhooks ->
+#      New Webhook -> copy the URL.
+#   2. GitHub: Settings -> Secrets and variables -> Actions ->
+#      New repository secret -> Name: DISCORD_WEBHOOK, Secret: that URL.
+#   3. Push this file, then test from the Actions tab with "Run workflow"
+#      (workflow_dispatch below) or by starring from another account.
+
+name: Discord star notification
+
+on:
+  watch:
+    types: [started]
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification
+        env:
+          ACTOR: ${{ github.actor }}
+          REPO: ${{ github.repository }}
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          # Pink of the Strawberry Milk look.
+          COLOR: "16756401"
+        run: |
+          jq -n \
+            --arg actor "$ACTOR" \
+            --arg repo "$REPO" \
+            --arg color "$COLOR" \
+            '{
+              username: "Posthaste",
+              embeds: [{
+                title: "⭐ New star!",
+                description: ("**\($actor)** starred [Posthaste](https://github.com/\($repo)). Thanks!"),
+                color: ($color | tonumber)
+              }]
+            }' | curl -sf -H "Content-Type: application/json" -d @- "$WEBHOOK"
+
+      # To ignore your own stars, add this filter to the job above:
+      #   if: github.event_name == 'workflow_dispatch' || github.actor != github.repository_owner
