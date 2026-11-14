@@ -104,15 +104,19 @@ export function MainWindow({ info }: { info: AppInfo }) {
     return () => window.removeEventListener("focus", refresh);
   }, []);
 
-  const go = useCallback((next: View) => {
-    setView(next);
-    setFilters(NO_FILTERS);
-    setFiltersOpen(false);
-    setLimit(PAGE);
-    setEditingId(null);
-    setSelectedId(null);
-    setLoaded(false);
-  }, []);
+  const go = useCallback(
+    (next: View) => {
+      const switching = next !== view;
+      setView(next);
+      setFilters(NO_FILTERS);
+      setFiltersOpen(false);
+      setLimit(PAGE);
+      setEditingId(null);
+      setSelectedId(null);
+      if (switching) setLoaded(false);
+    },
+    [view],
+  );
 
   useEffect(
     () =>

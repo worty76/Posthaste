@@ -459,6 +459,25 @@ describe("settings", () => {
   });
 });
 
+describe("sidebar navigation", () => {
+  it("keeps the notes when the active section is clicked again", async () => {
+    api.notesList.mockResolvedValue([note("still here")]);
+    const user = await open();
+    expect(await screen.findByText("still here")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Inbox/ }));
+    await user.click(screen.getByRole("button", { name: /Inbox/ }));
+    expect(await screen.findByText("still here")).toBeInTheDocument();
+  });
+
+  it("still reloads when switching away and back", async () => {
+    api.notesList.mockResolvedValue([note("switched back")]);
+    const user = await open();
+    await user.click(screen.getByRole("button", { name: /Today/ }));
+    await user.click(screen.getByRole("button", { name: /Inbox/ }));
+    expect(await screen.findByText("switched back")).toBeInTheDocument();
+  });
+});
+
 describe("update banner", () => {
   it("offers the update with one click", async () => {
     api.checkForUpdate.mockResolvedValue({
