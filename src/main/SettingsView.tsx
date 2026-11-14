@@ -6,6 +6,7 @@ import { api, toAppError } from "../lib/ipc";
 import {
   DEFAULT_CAPTURE_SHORTCUT,
   defaultInboxShortcut,
+  defaultTodayShortcut,
   type AppInfo,
   type DataInfo,
   type ResolvedLook,
@@ -228,6 +229,32 @@ export function SettingsView({
             </div>
           </div>
           <RegistrationStatus status={shortcuts.inbox} limitation={shortcuts.limitation} />
+        </div>
+        <div className="row row--stack">
+          <div className="row">
+            <div className="row__text">
+              <div className="row__label">Today shortcut</div>
+              <div className="row__help">
+                Opens a small window with today's notes and how many are done.
+              </div>
+            </div>
+            <div className="row__control">
+              <ShortcutRecorder
+                label="Today shortcut"
+                value={settings.today_shortcut}
+                os={info.os}
+                onChange={(today_shortcut) => void set({ today_shortcut })}
+              />
+              <Button
+                variant="quiet"
+                disabled={settings.today_shortcut === defaultTodayShortcut(info.os)}
+                onClick={() => void set({ today_shortcut: defaultTodayShortcut(info.os) })}
+              >
+                Restore default
+              </Button>
+            </div>
+          </div>
+          <RegistrationStatus status={shortcuts.today} limitation={shortcuts.limitation} />
         </div>
       </section>
 

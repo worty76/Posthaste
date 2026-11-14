@@ -21,8 +21,10 @@ the code, and add a grep to `scripts/check-rules.sh` if a grep can enforce it.
 
 A global shortcut opens a small window, you type, Enter saves, the window
 disappears, and focus returns to what you were doing. Later the note is in the
-inbox. Every change is judged against that loop: it must not get slower, need
-more keystrokes, or become less reliable.
+inbox. A second glance shortcut opens a small Today window: what is on today's
+plate and how much of it is done, gone with Esc. There are three windows —
+capture, glance, inbox — and every change is judged against that loop: it must
+not get slower, need more keystrokes, or become less reliable.
 
 ## Scope: do what was asked, nothing else
 
@@ -35,8 +37,10 @@ more keystrokes, or become less reliable.
   replaces and why the existing code cannot do it.
 - If the task is unclear or conflicts with a rule here, stop and ask. Do not
   guess and build.
-- Not in this product, do not build: accounts, sync, telemetry, AI features,
-  reminders, calendars, folders, productivity scores.
+- Not in this product, do not build: accounts, sync, telemetry, reminders,
+  calendars, folders, productivity scores. Two deliberate exceptions: the
+  opt-in AI polish, and the Today window's done-of-total count for the current
+  day. Streaks, percentages, history and scores remain out.
 
 ## Never
 

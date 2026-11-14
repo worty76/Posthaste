@@ -41,10 +41,14 @@ telemetry — nothing leaves your computer unless you turn on AI polish yourself
 |---|---|---|
 | Capture a note | ⌘⇧Space | Ctrl+Shift+Space |
 | Open the inbox | ⌘⌃N | Ctrl+Alt+N |
+| See today's notes | ⌘⌃G | Ctrl+Alt+G |
 
 In the capture window: Enter saves, Shift+Enter adds a line, Esc keeps a draft.
 In the inbox: ↑/↓ move, E edit, X complete, A archive, C copy, / search,
-1/2/3 switch sections, N new note. Both shortcuts are changeable in Settings.
+1/2/3 switch sections, N new note. In the Today window: ↑/↓ move, X marks a
+note done or not done, Esc closes. All three shortcuts are changeable in
+Settings. Command line: `posthaste --capture`, `--today`, `--inbox`,
+`--settings`, `--minimized`.
 
 ## Build from source
 
@@ -66,7 +70,8 @@ npm run check            # typecheck, lint, tests, rule checks
 
 Contributing rules live in the `AGENTS.md` files at the root and in each
 source folder. Wayland users: global shortcuts need a desktop binding —
-bind `posthaste --capture` to a key in your keyboard settings.
+bind `posthaste --capture` and `posthaste --today` to keys in your keyboard
+settings.
 
 ## Not in it, on purpose
 

@@ -95,13 +95,44 @@ sleep 0.3
 check "Ctrl+Enter keeps the window open for another" "[ -n \"\$(capture_visible)\" ]"
 xdotool key Escape; wait_for '[ -z "$(capture_visible)" ]' 30
 
+echo "Today window"
+today_visible(){ xdotool search --onlyvisible --name '^Posthaste Today$' 2>/dev/null | head -1; }
+# Two open notes from days ago: they are what the glance carries over.
+DAY_MS=$(( $(date -d '3 days ago' +%s) * 1000 ))
+for i in 1 2; do
+  sql "INSERT INTO notes (id, content, status, created_at, updated_at)
+       VALUES (hex(randomblob(8)), 'carried task $i', 'inbox', $DAY_MS, $DAY_MS)"
+done
+check "two carried notes were seeded" "[ \"\$(sql \"SELECT count(*) FROM notes WHERE content LIKE 'carried task%' AND created_at < $((DAY_MS + 86400000))\")\" = 2 ]"
+xdotool windowactivate --sync "$EDITOR_WIN"; sleep 0.3
+xdotool key ctrl+alt+g
+check "today window appears on the shortcut" "wait_for '[ -n \"\$(today_visible)\" ]' 50"
+TODAY="$(today_visible)"
+check "today window has focus" "wait_for '[ \"\$(active)\" = \"$TODAY\" ]' 30"
+check "the capture window did not open with it" "[ -z \"\$(capture_visible)\" ]"
+sleep 0.5; shot 06-today
+xdotool key Escape
+check "Escape hides the today window" "wait_for '[ -z \"\$(today_visible)\" ]' 30"
+check "focus returned to the editor after the glance" "wait_for '[ \"\$(active)\" = \"$EDITOR_WIN\" ]' 30"
+xdotool key ctrl+alt+g; wait_for '[ -n "$(today_visible)" ]' 50; sleep 0.4
+xdotool key ctrl+alt+g
+check "the shortcut toggles the glance closed again" "wait_for '[ -z \"\$(today_visible)\" ]' 30"
+check "editor focused after the toggle" "wait_for '[ \"\$(active)\" = \"$EDITOR_WIN\" ]' 30"
+xdotool key ctrl+shift+space; wait_for '[ -n "$(capture_visible)" ]' 50; sleep 0.4
+CAP2="$(capture_visible)"
+eval "$(xdotool getwindowgeometry --shell "$CAP2")"
+CX=$((X + WIDTH/2)); CY=$((Y + HEIGHT/2))
+check "capture still opens centred after the today window" "[ $((CX-720)) -ge -3 ] && [ $((CX-720)) -le 3 ] && [ $((CY-450)) -ge -30 ] && [ $((CY-450)) -le 30 ]"
+xdotool key Escape; wait_for '[ -z "$(capture_visible)" ]' 30
+NOTES_BEFORE_CRASH="$(sql 'SELECT count(*) FROM notes')"
+
 echo "Crash and restart"
 xdotool key ctrl+shift+space; wait_for '[ -n "$(capture_visible)" ]' 50; sleep 0.4
 xdotool type --delay 15 "typed just before a crash"; sleep 0.6
 kill -9 $APP; sleep 0.5
 "$BIN" >"$WORK/app2.log" 2>&1 & APP=$!
 check "app restarts after being killed" "wait_for 'xdotool search --onlyvisible --name \"^Posthaste\$\" >/dev/null 2>&1' 150"
-check "all three notes survived" "[ \"\$(sql 'SELECT count(*) FROM notes')\" = 3 ]"
+check "all notes survived the crash" "[ \"\$(sql 'SELECT count(*) FROM notes')\" = \"$NOTES_BEFORE_CRASH\" ]"
 check "the unsaved text survived as a draft" "[ \"\$(sql 'SELECT content FROM drafts')\" = 'typed just before a crash' ]"
 sleep 1.5; shot 04-inbox
 

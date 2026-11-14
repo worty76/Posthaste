@@ -179,3 +179,4 @@ export type View = "inbox" | "today" | "archive" | "settings";
 
 export const DEFAULT_CAPTURE_SHORTCUT = "CmdOrCtrl+Shift+Space";
 export const defaultInboxShortcut = (os: Os) => (os === "macos" ? "Cmd+Ctrl+N" : "Ctrl+Alt+N");
+export const defaultTodayShortcut = (os: Os) => (os === "macos" ? "Cmd+Ctrl+G" : "Ctrl+Alt+G");
