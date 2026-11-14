@@ -39,6 +39,10 @@ what makes the app themeable: a theme changes token values and nothing else.
   never for content. Changing any of these means re-checking contrast.
 - **One accent.** Colour carries meaning: accent for the current or primary
   thing, danger for destructive or failed, ok for confirmed. Not decoration.
+- **`--accent` is for fills and decoration** (buttons, checkboxes, the
+  selection bar); **`--accent-ink` is for text and focus indicators** —
+  anything the user must read or locate. A pastel look's `--accent` can fail
+  contrast as text; `--accent-ink` is derived so it never does.
 - **Motion** is short and answers a user action. Durations come from tokens so
   `prefers-reduced-motion` (which zeroes them) keeps working. No animation that
   loops or plays without a trigger.

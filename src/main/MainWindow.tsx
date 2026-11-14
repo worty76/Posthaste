@@ -6,8 +6,8 @@ import { EmptyState } from "../components/EmptyState";
 import { Icon, type IconName } from "../components/Icon";
 import { Kbd } from "../components/Kbd";
 import { Toasts, useToasts } from "../components/Toasts";
+import { useAppearance } from "../hooks/useAppearance";
 import { useSettings } from "../hooks/useSettings";
-import { useTheme } from "../hooks/useTheme";
 import { copyText } from "../lib/clipboard";
 import { dayRange, groupByDay } from "../lib/dates";
 import { api, on, toAppError } from "../lib/ipc";
@@ -41,7 +41,7 @@ function isTyping(target: EventTarget | null) {
 
 export function MainWindow({ info }: { info: AppInfo }) {
   const { settings, shortcuts, update, accept } = useSettings();
-  useTheme(settings?.theme ?? "system");
+  useAppearance(settings);
   const { toasts, show, dismiss } = useToasts();
 
   const [view, setView] = useState<View>("inbox");

@@ -324,7 +324,7 @@
   padding: 1px 7px;
   border-radius: 20px;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-ink);
   font-weight: 500;
 }
 .note__actions {
@@ -450,7 +450,7 @@
   justify-content: center;
 }
 .recorder[data-recording="true"] {
-  border-color: var(--accent);
+  border-color: var(--accent-ink);
   box-shadow: 0 0 0 3px var(--accent-soft);
   color: var(--text-muted);
 }

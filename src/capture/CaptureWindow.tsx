@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Kbd } from "../components/Kbd";
+import { useAppearance } from "../hooks/useAppearance";
 import { useSettings } from "../hooks/useSettings";
-import { useTheme } from "../hooks/useTheme";
 import { DraftSync } from "../lib/draftSync";
 import { api, on, toAppError } from "../lib/ipc";
 import { formatAccelerator, hasMod } from "../lib/shortcut";
@@ -18,7 +18,7 @@ const IDLE: Status = { kind: "idle", text: "" };
 
 export function CaptureWindow({ os }: { os: Os }) {
   const { settings, shortcuts } = useSettings();
-  useTheme(settings?.theme ?? "system");
+  useAppearance(settings);
 
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");

@@ -71,7 +71,7 @@ html.is-capture body {
   font-size: var(--t-xl);
   line-height: 1.45;
   resize: none;
-  caret-color: var(--accent);
+  caret-color: var(--accent-ink);
 }
 .capture__input::placeholder {
   color: var(--text-faint);
@@ -161,7 +161,7 @@ html.is-capture body {
 }
 .capture__category:focus-visible {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--accent-ink);
   color: var(--text);
 }
 

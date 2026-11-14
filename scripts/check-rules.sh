@@ -16,6 +16,17 @@ rule "Raw colours are only allowed in src/styles/tokens.css (src/styles/AGENTS.m
 rule "Inline style props are not allowed; use a class and tokens (src/AGENTS.md)" \
   "$(grep -rnE 'style=\{' src --include='*.tsx')"
 
+rule "setProperty is only allowed in src/lib/appearance.ts (src/AGENTS.md)" \
+  "$(grep -rn 'setProperty' src --include='*.ts' --include='*.tsx' \
+      | grep -v '^src/lib/appearance.ts:' | grep -v '\.test\.')"
+
+# The dark and the light block must define exactly the same token names, so
+# a look can swap either base without a missing token.
+DARK_TOKENS=$(awk '/^:root,$/,/^}/' src/styles/tokens.css | grep -oE '^\s*--[a-z0-9-]+' | sort)
+LIGHT_TOKENS=$(awk '/^:root\[data-theme="light"\]/,/^}/' src/styles/tokens.css | grep -oE '^\s*--[a-z0-9-]+' | sort)
+rule "Every token must be defined in both the dark and the light block of src/styles/tokens.css (src/styles/AGENTS.md)" \
+  "$(diff <(echo "$DARK_TOKENS") <(echo "$LIGHT_TOKENS"))"
+
 rule "Only src/lib/ipc.ts and src/main.tsx may import @tauri-apps (src/AGENTS.md)" \
   "$(grep -rnE "from \"@tauri-apps" src | grep -v '^src/lib/ipc.ts:' | grep -v '^src/main.tsx:')"
 
