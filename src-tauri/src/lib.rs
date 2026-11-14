@@ -118,6 +118,14 @@ pub fn run() {
             commands::data_import,
             commands::data_backup,
             commands::data_clear,
+            commands::look_list,
+            commands::look_active,
+            commands::look_doc,
+            commands::look_preview,
+            commands::look_save,
+            commands::look_import,
+            commands::look_export_code,
+            commands::look_delete,
         ])
         .setup(|app| {
             let handle = app.handle().clone();

@@ -10,8 +10,11 @@ import type {
   DataInfo,
   Draft,
   ImportReport,
+  LookDoc,
+  LookSummary,
   Note,
   NoteQuery,
+  ResolvedLook,
   Settings,
   SettingsState,
   Status,
@@ -48,10 +51,20 @@ export const api = {
   dataImport: () => invoke<ImportReport | null>("data_import"),
   dataBackup: () => invoke<string | null>("data_backup"),
   dataClear: () => invoke<SettingsState>("data_clear", { confirm: "DELETE" }),
+
+  lookList: () => invoke<LookSummary[]>("look_list"),
+  lookActive: () => invoke<ResolvedLook | null>("look_active"),
+  lookDoc: (id: string) => invoke<LookDoc>("look_doc", { id }),
+  lookPreview: (doc: LookDoc) => invoke<ResolvedLook>("look_preview", { doc }),
+  lookSave: (doc: LookDoc, id: string | null) => invoke<LookSummary>("look_save", { doc, id }),
+  lookImport: (code: string) => invoke<LookSummary>("look_import", { code }),
+  lookExportCode: (id: string) => invoke<string>("look_export_code", { id }),
+  lookDelete: (id: string) => invoke<void>("look_delete", { id }),
 };
 
 export interface Events {
   "notes-changed": null;
+  "looks-changed": null;
   "settings-changed": Settings;
   "capture-shown": { source: string | null };
   "capture-hidden": null;

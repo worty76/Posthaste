@@ -15,6 +15,7 @@ export const defaultSettings: Settings = {
   hide_on_blur: true,
   enter_behavior: "save",
   draft_retention: "forever",
+  look_id: null,
 };
 
 export function settingsState(patch: Partial<Settings> = {}): SettingsState {
@@ -74,6 +75,14 @@ export const api = {
   dataImport: vi.fn(),
   dataBackup: vi.fn(),
   dataClear: vi.fn(),
+  lookList: vi.fn(),
+  lookActive: vi.fn(),
+  lookDoc: vi.fn(),
+  lookPreview: vi.fn(),
+  lookSave: vi.fn(),
+  lookImport: vi.fn(),
+  lookExportCode: vi.fn(),
+  lookDelete: vi.fn(),
 };
 
 /** Resets every command to a harmless default. Call in `beforeEach`. */
@@ -92,6 +101,8 @@ export function resetIpc() {
     note_count: 0,
     schema_version: 2,
   });
+  api.lookList.mockResolvedValue([]);
+  api.lookActive.mockResolvedValue(null);
 }
 
 export const ipcMock = {

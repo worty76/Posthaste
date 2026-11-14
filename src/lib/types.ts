@@ -52,6 +52,61 @@ export interface Settings {
   hide_on_blur: boolean;
   enter_behavior: EnterBehavior;
   draft_retention: DraftRetention;
+  look_id: string | null;
+}
+
+// Mirrors the look types in src-tauri/crates/core/src/look/. Keep in step.
+
+export type Base = "light" | "dark";
+export type Shape = "sharp" | "soft" | "round";
+export type FontFace = "system" | "rounded" | "serif" | "mono";
+
+export interface LookColors {
+  bg: string;
+  surface: string;
+  text: string;
+  accent: string;
+  bg_sunken?: string | null;
+  surface_raised?: string | null;
+  danger?: string | null;
+  ok?: string | null;
+}
+
+export interface LookDoc {
+  format: string;
+  version: number;
+  name: string;
+  author?: string | null;
+  base: Base;
+  colors: LookColors;
+  shape: Shape;
+  font: FontFace;
+}
+
+export interface LookPreview {
+  bg: string;
+  surface: string;
+  text: string;
+  accent: string;
+}
+
+export interface LookSummary {
+  id: string;
+  name: string;
+  author: string | null;
+  builtin: boolean;
+  base: Base;
+  preview: LookPreview;
+}
+
+export interface ResolvedLook {
+  id: string;
+  name: string;
+  author: string | null;
+  base: Base;
+  shape: Shape;
+  font: FontFace;
+  tokens: Record<string, string>;
 }
 
 export interface ShortcutStatus {

@@ -3,6 +3,9 @@
 
 use std::sync::atomic::Ordering;
 
+use posthaste_core::look::derive::ResolvedLook;
+use posthaste_core::look::store::LookSummary;
+use posthaste_core::look::{code::encode_code, derive::resolve, LookDoc};
 use posthaste_core::{
     Counts, DataInfo, Draft, ImportReport, NewNote, Note, NoteQuery, Settings, Status,
 };
@@ -19,6 +22,10 @@ use crate::windows;
 
 fn notes_changed(app: &AppHandle) {
     let _ = app.emit("notes-changed", ());
+}
+
+fn looks_changed(app: &AppHandle) {
+    let _ = app.emit("looks-changed", ());
 }
 
 // ---- app ---------------------------------------------------------------------
@@ -354,8 +361,76 @@ pub fn data_clear(
     state.with_db(|db| db.clear_all())?;
     log::warn!("all application data cleared at the user's request");
     notes_changed(&app);
+    looks_changed(&app);
     // Settings are back to defaults; apply them like any other change.
     settings_update(app, state, Settings::default())
+}
+
+// ---- looks -------------------------------------------------------------------
+
+#[tauri::command]
+pub fn look_list(state: State<'_, AppState>) -> AppResult<Vec<LookSummary>> {
+    state.with_db(|db| db.list_looks())
+}
+
+#[tauri::command]
+pub fn look_active(state: State<'_, AppState>) -> AppResult<Option<ResolvedLook>> {
+    state.with_db(|db| db.active_look())
+}
+
+#[tauri::command]
+pub fn look_doc(state: State<'_, AppState>, id: String) -> AppResult<LookDoc> {
+    state.with_db(|db| db.look_doc(&id))
+}
+
+/// Validates and derives a draft for the editor's live preview. Stores
+/// nothing.
+#[tauri::command]
+pub fn look_preview(doc: LookDoc) -> AppResult<ResolvedLook> {
+    Ok(resolve("preview", &doc)?)
+}
+
+#[tauri::command]
+pub fn look_save(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    doc: LookDoc,
+    id: Option<String>,
+) -> AppResult<LookSummary> {
+    let summary = state.with_db(|db| db.save_look(doc, id.as_deref()))?;
+    looks_changed(&app);
+    Ok(summary)
+}
+
+#[tauri::command]
+pub fn look_import(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    code: String,
+) -> AppResult<LookSummary> {
+    let summary = state.with_db(|db| db.import_look(&code))?;
+    looks_changed(&app);
+    Ok(summary)
+}
+
+#[tauri::command]
+pub fn look_export_code(state: State<'_, AppState>, id: String) -> AppResult<String> {
+    let doc = state.with_db(|db| db.look_doc(&id))?;
+    Ok(encode_code(&doc))
+}
+
+#[tauri::command]
+pub fn look_delete(app: AppHandle, state: State<'_, AppState>, id: String) -> AppResult<()> {
+    state.with_db(|db| db.delete_look(&id))?;
+    // Deleting the active look returns the app to Default immediately, the
+    // same way data_clear resets settings.
+    if state.settings().look_id.as_deref() == Some(id.as_str()) {
+        let mut settings = state.settings();
+        settings.look_id = None;
+        settings_update(app.clone(), state, settings)?;
+    }
+    looks_changed(&app);
+    Ok(())
 }
 
 #[cfg(test)]
