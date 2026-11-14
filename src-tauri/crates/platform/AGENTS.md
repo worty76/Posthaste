@@ -31,7 +31,7 @@ and how to give focus back to it. One file per OS behind one small API in
 - `macos.rs` and `windows.rs` have not been compiled in this repo's
   development environment. If you change them and cannot build for that OS,
   check each call against the binding crate's source, and say "not compiled" in
-  your summary and in the README table.
+  your summary and in the platform table in `docs/platform-notes.md`.
 - Wayland cannot support this crate's features by design. Do not add
   compositor-specific hacks; the documented route is the `posthaste --capture`
   command bound in the desktop's own settings.

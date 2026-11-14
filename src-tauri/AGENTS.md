@@ -51,8 +51,8 @@ are in `crates/platform`).
   takes focus.
 - Hiding and handing focus back happen in one `run_on_main_thread` closure so
   they cannot reorder.
-- Any change here is verified with `scripts/e2e-linux.sh`, and the README's
-  platform table is updated to say what was and was not run.
+- Any change here is verified with `scripts/e2e-linux.sh`, and the platform
+  table in `docs/platform-notes.md` is updated to say what was and was not run.
 
 ## Platform differences
 
@@ -60,8 +60,8 @@ are in `crates/platform`).
 - `#[cfg(target_os = …)]` in this crate is limited to choosing a Tauri option
   (title bar style, tray template icon, Dock reopen). Keep each block a few
   lines, with a comment saying why that OS differs.
-- Code for an OS you cannot build on is marked unverified in the README. Do not
-  describe it as working.
+- Code for an OS you cannot build on is marked unverified in
+  `docs/platform-notes.md`. Do not describe it as working.
 
 ## Logging and privacy
 
