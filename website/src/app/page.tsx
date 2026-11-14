@@ -4,7 +4,8 @@ import { HeroActions } from "@/components/HeroActions";
 import { HowItWorks } from "@/components/HowItWorks";
 import { MiniInbox } from "@/components/MiniInbox";
 import { ContrastToy } from "@/components/ContrastToy";
-import { GitHubMark, StarIcon } from "@/components/icons";
+import { GitHubMark } from "@/components/icons";
+import { StarChip } from "@/components/StarChip";
 import { LookMiniature } from "@/components/mini";
 import { LOOKS } from "@/lib/looks";
 import { PRODUCT } from "@/config";
@@ -30,6 +31,9 @@ const PLATFORMS: { key: "mac" | "windows" | "linux"; name: string }[] = [
 async function getStars(): Promise<number | null> {
   try {
     const res = await fetch("https://api.github.com/repos/worty76/Posthaste", {
+      // Always fresh: a cached response here meant the site showed a stale
+      // star count for hours after deploy.
+      cache: "no-store",
       headers: { Accept: "application/vnd.github+json" },
     });
     if (!res.ok) return null;
@@ -50,12 +54,7 @@ export default async function Page() {
           Posthaste
         </a>
         <span className="site-head__spacer" />
-        {stars !== null && (
-          <a className="site-head__stars" href={`${PRODUCT.repoUrl}/stargazers`}>
-            <StarIcon />
-            {stars}
-          </a>
-        )}
+        <StarChip baked={stars} />
         <a className="site-head__icon" href={PRODUCT.repoUrl} aria-label="Posthaste on GitHub">
           <GitHubMark />
         </a>

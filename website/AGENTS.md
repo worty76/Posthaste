@@ -17,8 +17,13 @@ The single source of look data is `src/lib/looks.ts`; every colour on the
 site comes from it or from `src/lib/derive.ts` over it. The site wears the
 Ink look statically — the token values in `src/app/globals.css` are derived
 from that data and are not re-themed at runtime. The GitHub star count in
-the header is fetched from the GitHub API at build time only and baked into
-the static HTML; the page still makes no runtime requests to anyone.
+the header is fetched from the GitHub API at build time and baked into the
+static HTML. On the mini PC, an hourly cron (~/bin/update-stars.sh) writes
+the live count to stars.json inside the served folder, and StarChip
+re-reads that file from the visitor's browser — a same-origin request, so
+the page still makes no third-party requests. Deploy with
+`rsync -az --delete --exclude=stars.json out/ …` so the hourly refresh
+survives re-uploads.
 
 Copy tone: this site is for non-technical readers. Plain language and
 benefits first — no protocol names, file formats, file paths or build
