@@ -13,6 +13,7 @@ import {
   type SettingsState,
   type ShortcutReport,
   type ShortcutStatus,
+  type UpdateInfo,
 } from "../lib/types";
 import { AppearanceSection } from "./AppearanceSection";
 import { ShortcutRecorder } from "./ShortcutRecorder";
@@ -25,6 +26,11 @@ interface Props {
   accept: (state: SettingsState) => void;
   notify: (text: string, kind?: "info" | "error") => void;
   onPreviewLook: (look: ResolvedLook | null) => void;
+  /** Shared with the banner in the note views; null until a check finds one. */
+  updateAvailable: UpdateInfo | null;
+  updating: boolean;
+  onUpdate: () => void;
+  onCheck: () => Promise<UpdateInfo | null>;
 }
 
 function Row({ label, help, children }: { label: string; help?: ReactNode; children: ReactNode }) {
@@ -82,11 +88,17 @@ export function SettingsView({
   accept,
   notify,
   onPreviewLook,
+  updateAvailable,
+  updating,
+  onUpdate,
+  onCheck,
 }: Props) {
   const [data, setData] = useState<DataInfo | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [clearOpen, setClearOpen] = useState(false);
   const [confirmText, setConfirmText] = useState("");
+  const [checkNotice, setCheckNotice] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
 
   const refreshData = () => api.dataInfo().then(setData, () => setData(null));
   useEffect(() => {
@@ -113,6 +125,18 @@ export function SettingsView({
   const closeClear = () => {
     setClearOpen(false);
     setConfirmText("");
+  };
+
+  const checkNow = async () => {
+    setChecking(true);
+    try {
+      const found = await onCheck();
+      setCheckNotice(found ? null : "You're on the latest version.");
+    } catch (e) {
+      notify(toAppError(e).message, "error");
+    } finally {
+      setChecking(false);
+    }
   };
 
   return (
@@ -397,7 +421,43 @@ export function SettingsView({
         </Row>
       </section>
 
-      <p className="row__help">Posthaste {info.version}</p>
+      <section className="settings__section" aria-labelledby="s-updates">
+        <h2 className="settings__heading" id="s-updates">
+          Updates
+        </h2>
+        <div className="row row--stack">
+          <div className="row">
+            <div className="row__text">
+              <div className="row__label">Posthaste {info.version}</div>
+              <div className="row__help">
+                The app checks for updates at most every 6 hours. An update installs in place and
+                Posthaste restarts.
+              </div>
+            </div>
+            <div className="row__control">
+              {updateAvailable ? (
+                <Button busy={updating} onClick={onUpdate}>
+                  Update to {updateAvailable.version}
+                </Button>
+              ) : (
+                <Button busy={checking} onClick={() => void checkNow()}>
+                  Check for updates
+                </Button>
+              )}
+            </div>
+          </div>
+          {updateAvailable && (
+            <p className="status" data-state="ok">
+              Posthaste {updateAvailable.version} is ready to install.
+            </p>
+          )}
+          {checkNotice && (
+            <p className="status" data-state="ok">
+              {checkNotice}
+            </p>
+          )}
+        </div>
+      </section>
 
       <Dialog
         open={clearOpen}

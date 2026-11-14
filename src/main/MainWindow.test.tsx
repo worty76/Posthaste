@@ -440,4 +440,41 @@ describe("settings", () => {
     await user.click(screen.getByRole("button", { name: "Export…" }));
     expect(await screen.findByText("Exported 12 notes")).toBeInTheDocument();
   });
+
+  it("checks for updates on request and reports when current", async () => {
+    const user = await openSettings();
+    await user.click(screen.getByRole("button", { name: "Check for updates" }));
+    expect(await screen.findByText("You're on the latest version.")).toBeInTheDocument();
+  });
+
+  it("switches the check button to an in-app update when one is found", async () => {
+    api.checkForUpdate.mockResolvedValue({
+      version: "0.2.1",
+      currentVersion: "0.1.0",
+      notes: null,
+    });
+    const user = await openSettings();
+    await user.click(await screen.findByRole("button", { name: "Update to 0.2.1" }));
+    await waitFor(() => expect(api.installUpdate).toHaveBeenCalledTimes(1));
+  });
+});
+
+describe("update banner", () => {
+  it("offers the update with one click", async () => {
+    api.checkForUpdate.mockResolvedValue({
+      version: "0.2.1",
+      currentVersion: "0.1.0",
+      notes: null,
+    });
+    const user = await open();
+    expect(await screen.findByText(/Posthaste 0.2.1 is available/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Update" }));
+    await waitFor(() => expect(api.installUpdate).toHaveBeenCalledTimes(1));
+  });
+
+  it("says nothing when the app is current", async () => {
+    await open();
+    await waitFor(() => expect(api.checkForUpdate).toHaveBeenCalled());
+    expect(screen.queryByText(/is available/)).not.toBeInTheDocument();
+  });
 });

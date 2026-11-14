@@ -3,6 +3,8 @@
 
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { relaunch } from "@tauri-apps/plugin-process";
+import { check } from "@tauri-apps/plugin-updater";
 import type {
   AppError,
   AppInfo,
@@ -18,6 +20,7 @@ import type {
   Settings,
   SettingsState,
   Status,
+  UpdateInfo,
 } from "./types";
 
 export const api = {
@@ -62,6 +65,25 @@ export const api = {
   lookDelete: (id: string) => invoke<void>("look_delete", { id }),
 
   aiPolish: (text: string) => invoke<string>("ai_polish", { text }),
+
+  /** Looks for a newer release. Null means the app is current. */
+  checkForUpdate: async (): Promise<UpdateInfo | null> => {
+    const update = await check();
+    return update
+      ? {
+          version: update.version,
+          currentVersion: update.currentVersion,
+          notes: update.body ?? null,
+        }
+      : null;
+  },
+  /** Downloads, installs and restarts. Throws when the download fails. */
+  installUpdate: async (): Promise<void> => {
+    const update = await check();
+    if (!update) return;
+    await update.downloadAndInstall();
+    await relaunch();
+  },
 };
 
 export interface Events {

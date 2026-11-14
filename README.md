@@ -83,6 +83,14 @@ note, ⌘/Ctrl+, settings, ? shows this list.
 **Command line** (also how a second launch talks to the running app):
 `posthaste --capture`, `--inbox`, `--settings`, `--minimized`.
 
+## Updates
+
+The app checks GitHub Releases for a newer version at most every 6 hours (once
+at launch, then on a timer). When one exists a banner in the main window and a
+button in Settings → Updates install it in place and restart the app. The
+check sends nothing about you — one GET of the release list. Installers are
+signed with a Tauri updater key, so the app refuses updates it did not build.
+
 ## Looks
 
 A look is a small colour scheme — background, surface, text and one accent —

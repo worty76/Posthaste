@@ -145,6 +145,13 @@ export interface AppInfo {
   startup_error: AppError | null;
 }
 
+/** An update the updater plugin found. Null when the app is current. */
+export interface UpdateInfo {
+  version: string;
+  currentVersion: string;
+  notes: string | null;
+}
+
 export interface DataInfo {
   path: string;
   size_bytes: number;

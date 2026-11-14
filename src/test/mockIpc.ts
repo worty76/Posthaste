@@ -87,6 +87,8 @@ export const api = {
   lookExportCode: vi.fn(),
   lookDelete: vi.fn(),
   aiPolish: vi.fn(),
+  checkForUpdate: vi.fn(),
+  installUpdate: vi.fn(),
 };
 
 /** Resets every command to a harmless default. Call in `beforeEach`. */
@@ -107,6 +109,7 @@ export function resetIpc() {
   });
   api.lookList.mockResolvedValue([]);
   api.lookActive.mockResolvedValue(null);
+  api.checkForUpdate.mockResolvedValue(null);
 }
 
 export const ipcMock = {

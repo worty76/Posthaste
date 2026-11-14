@@ -8,6 +8,7 @@ import { Kbd } from "../components/Kbd";
 import { Toasts, useToasts } from "../components/Toasts";
 import { useAppearance } from "../hooks/useAppearance";
 import { useSettings } from "../hooks/useSettings";
+import { useUpdateCheck } from "../hooks/useUpdateCheck";
 import { copyText } from "../lib/clipboard";
 import { dayRange, groupByDay } from "../lib/dates";
 import { api, on, toAppError } from "../lib/ipc";
@@ -43,6 +44,7 @@ export function MainWindow({ info }: { info: AppInfo }) {
   const { settings, shortcuts, update, accept } = useSettings();
   const { setPreview } = useAppearance(settings);
   const { toasts, show, dismiss } = useToasts();
+  const updates = useUpdateCheck();
 
   const [view, setView] = useState<View>("inbox");
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
@@ -394,6 +396,20 @@ export function MainWindow({ info }: { info: AppInfo }) {
           </div>
         )}
 
+        {updates.update && view !== "settings" && (
+          <div className="banner" role="status">
+            <div className="banner__text">
+              <span className="banner__title">
+                Posthaste {updates.update.version} is available.{" "}
+              </span>
+              It installs right here and the app restarts.
+            </div>
+            <Button busy={updates.busy} onClick={() => void updates.install().catch(fail)}>
+              Update
+            </Button>
+          </div>
+        )}
+
         {view !== "settings" && (searching || filtersOpen) && (
           <div className="filters">
             <Segmented<StatusFilter>
@@ -441,6 +457,10 @@ export function MainWindow({ info }: { info: AppInfo }) {
                   accept={accept}
                   notify={(text, kind) => show(text, { kind })}
                   onPreviewLook={setPreview}
+                  updateAvailable={updates.update}
+                  updating={updates.busy}
+                  onUpdate={() => void updates.install().catch(fail)}
+                  onCheck={updates.check}
                 />
               ) : null
             ) : !loaded ? null : visible.length === 0 ? (
