@@ -21,6 +21,7 @@ pub struct ShortcutStatus {
 pub struct ShortcutReport {
     pub capture: ShortcutStatus,
     pub inbox: ShortcutStatus,
+    pub today: ShortcutStatus,
     /// Set when shortcuts register but cannot be relied on (Wayland).
     pub limitation: Option<String>,
 }
@@ -34,6 +35,7 @@ const WAYLAND_NOTE: &str = "This is a Wayland session. Wayland does not let appl
 enum Action {
     Capture,
     Inbox,
+    Today,
 }
 
 fn register(app: &AppHandle, accelerator: &str, action: Action) -> ShortcutStatus {
@@ -60,6 +62,7 @@ fn register(app: &AppHandle, accelerator: &str, action: Action) -> ShortcutStatu
                 match action {
                     Action::Capture => windows::toggle_capture(app),
                     Action::Inbox => windows::show_main(app, Some("inbox")),
+                    Action::Today => windows::toggle_today(app),
                 }
             }
         });
@@ -84,28 +87,77 @@ pub fn apply(app: &AppHandle, settings: &Settings) -> ShortcutReport {
         log::warn!("could not clear global shortcuts: {e}");
     }
     let capture = register(app, &settings.capture_shortcut, Action::Capture);
-    let inbox = if settings.inbox_shortcut.trim().is_empty() {
-        ShortcutStatus::default()
-    } else if same_shortcut(&settings.inbox_shortcut, &settings.capture_shortcut) {
-        ShortcutStatus {
-            accelerator: settings.inbox_shortcut.clone(),
-            registered: false,
-            error: Some("This is the same as the capture shortcut.".into()),
-        }
-    } else {
-        register(app, &settings.inbox_shortcut, Action::Inbox)
-    };
+    let capture_taken = [(settings.capture_shortcut.as_str(), "capture")];
+    let inbox = register_next(app, &settings.inbox_shortcut, &capture_taken, Action::Inbox);
+    let inbox_taken = [
+        (settings.capture_shortcut.as_str(), "capture"),
+        (settings.inbox_shortcut.as_str(), "inbox"),
+    ];
+    let today = register_next(app, &settings.today_shortcut, &inbox_taken, Action::Today);
     ShortcutReport {
         capture,
         inbox,
+        today,
         limitation: (posthaste_platform::session() == Session::Wayland)
             .then(|| WAYLAND_NOTE.to_string()),
     }
+}
+
+/// Registers one shortcut unless it repeats an earlier one, which is
+/// reported instead: two actions on one accelerator would fight each other.
+fn register_next(
+    app: &AppHandle,
+    accelerator: &str,
+    earlier: &[(&str, &str)],
+    action: Action,
+) -> ShortcutStatus {
+    if accelerator.trim().is_empty() {
+        return ShortcutStatus::default();
+    }
+    let accelerators: Vec<&str> = earlier.iter().map(|(acc, _)| *acc).collect();
+    if let Some(index) = repeats(&accelerators, accelerator) {
+        let name = earlier[index].1;
+        return ShortcutStatus {
+            accelerator: accelerator.to_string(),
+            registered: false,
+            error: Some(format!("This is the same as the {name} shortcut.")),
+        };
+    }
+    register(app, accelerator, action)
 }
 
 fn same_shortcut(a: &str, b: &str) -> bool {
     match (a.parse::<Shortcut>(), b.parse::<Shortcut>()) {
         (Ok(a), Ok(b)) => a == b,
         _ => false,
+    }
+}
+
+/// Index of the first shortcut in `earlier` that is the same accelerator as
+/// `candidate`, ignoring case and modifier order. `None` when they differ or
+/// either does not parse: an unparseable string is not "the same shortcut",
+/// its own registration error already says so.
+fn repeats(earlier: &[&str], candidate: &str) -> Option<usize> {
+    earlier.iter().position(|a| same_shortcut(a, candidate))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{repeats, same_shortcut};
+
+    #[test]
+    fn identical_accelerators_are_the_same_shortcut() {
+        assert!(same_shortcut("Ctrl+Alt+G", "alt+ctrl+g"));
+        assert!(!same_shortcut("Ctrl+Alt+G", "Ctrl+Alt+H"));
+        assert!(!same_shortcut("Ctrl+Alt+G", "not even parseable"));
+    }
+
+    #[test]
+    fn a_later_shortcut_that_repeats_an_earlier_one_is_reported() {
+        let earlier = ["Ctrl+Alt+G", "Ctrl+Alt+N"];
+        assert_eq!(repeats(&earlier, "alt+ctrl+g"), Some(0));
+        assert_eq!(repeats(&earlier, "Ctrl+Alt+N"), Some(1));
+        assert_eq!(repeats(&earlier, "Ctrl+Alt+H"), None);
+        assert_eq!(repeats(&earlier, "not even parseable"), None);
     }
 }

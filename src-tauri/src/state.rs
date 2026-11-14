@@ -17,6 +17,11 @@ pub struct AppState {
     /// The application that was focused when capture was last triggered.
     pub previous_app: Mutex<Option<PreviousApp>>,
     pub capture_shown_at: Mutex<Option<Instant>>,
+    /// The application that was focused when the Today window was last
+    /// opened. Kept separate from capture's so neither window's focus
+    /// hand-off can touch the other's.
+    pub today_previous_app: Mutex<Option<PreviousApp>>,
+    pub today_shown_at: Mutex<Option<Instant>>,
     pub tray_available: AtomicBool,
 }
 
@@ -37,6 +42,8 @@ impl AppState {
             shortcuts: Mutex::new(ShortcutReport::default()),
             previous_app: Mutex::new(None),
             capture_shown_at: Mutex::new(None),
+            today_previous_app: Mutex::new(None),
+            today_shown_at: Mutex::new(None),
             tray_available: AtomicBool::new(false),
         }
     }

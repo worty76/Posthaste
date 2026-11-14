@@ -159,6 +159,11 @@ pub const DEFAULT_INBOX_SHORTCUT: &str = if cfg!(target_os = "macos") {
 } else {
     "Ctrl+Alt+N"
 };
+pub const DEFAULT_TODAY_SHORTCUT: &str = if cfg!(target_os = "macos") {
+    "Cmd+Ctrl+G"
+} else {
+    "Ctrl+Alt+G"
+};
 
 /// User preferences. Unknown or missing fields fall back to defaults, so
 /// settings written by older or newer versions always load.
@@ -170,6 +175,8 @@ pub struct Settings {
     pub start_minimized: bool,
     pub capture_shortcut: String,
     pub inbox_shortcut: String,
+    /// Opens the Today window: a small glance at today's notes.
+    pub today_shortcut: String,
     pub capture_position: CapturePosition,
     /// Hide the capture window after a successful save.
     pub hide_after_save: bool,
@@ -195,6 +202,7 @@ impl Default for Settings {
             start_minimized: false,
             capture_shortcut: DEFAULT_CAPTURE_SHORTCUT.into(),
             inbox_shortcut: DEFAULT_INBOX_SHORTCUT.into(),
+            today_shortcut: DEFAULT_TODAY_SHORTCUT.into(),
             capture_position: CapturePosition::Center,
             hide_after_save: true,
             hide_on_blur: true,

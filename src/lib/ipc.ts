@@ -11,6 +11,7 @@ import type {
   Counts,
   DataInfo,
   Draft,
+  Glance,
   ImportReport,
   LookDoc,
   LookSummary,
@@ -39,6 +40,9 @@ export const api = {
   notesCounts: (todayFrom: number, todayTo: number) =>
     invoke<Counts>("notes_counts", { todayFrom, todayTo }),
   categoriesList: () => invoke<string[]>("categories_list"),
+  glanceGet: (todayFrom: number, todayTo: number) =>
+    invoke<Glance>("glance_get", { todayFrom, todayTo }),
+  todayDismiss: () => invoke<void>("today_dismiss"),
   noteUpdate: (id: string, content: string, category: string | null) =>
     invoke<Note>("note_update", { id, content, category }),
   noteSetStatus: (id: string, status: Status) => invoke<Note>("note_set_status", { id, status }),
@@ -110,6 +114,7 @@ export interface Events {
   "settings-changed": Settings;
   "capture-shown": { source: string | null };
   "capture-hidden": null;
+  "today-shown": null;
   navigate: string;
 }
 

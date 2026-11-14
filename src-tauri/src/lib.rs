@@ -27,6 +27,7 @@ const TRASH_RETENTION_MS: i64 = 24 * 60 * 60 * 1000;
 enum Launch {
     Main,
     Capture,
+    Today,
     View(&'static str),
     Background,
 }
@@ -35,6 +36,8 @@ fn parse_launch(args: &[String]) -> Launch {
     let has = |flag: &str| args.iter().any(|a| a == flag);
     if has("--capture") {
         Launch::Capture
+    } else if has("--today") {
+        Launch::Today
     } else if has("--inbox") {
         Launch::View("inbox")
     } else if has("--settings") {
@@ -50,6 +53,7 @@ fn perform(app: &AppHandle, launch: Launch) {
     match launch {
         Launch::Main => windows::show_main(app, None),
         Launch::Capture => windows::show_capture(app),
+        Launch::Today => windows::show_today(app),
         Launch::View(view) => windows::show_main(app, Some(view)),
         Launch::Background => {}
     }
@@ -109,6 +113,8 @@ pub fn run() {
             commands::notes_list,
             commands::notes_counts,
             commands::categories_list,
+            commands::glance_get,
+            commands::today_dismiss,
             commands::note_update,
             commands::note_set_status,
             commands::note_delete,
@@ -193,6 +199,10 @@ mod tests {
         assert_eq!(
             parse_launch(&args(&["posthaste", "--capture"])),
             Launch::Capture
+        );
+        assert_eq!(
+            parse_launch(&args(&["posthaste", "--today"])),
+            Launch::Today
         );
         assert_eq!(
             parse_launch(&args(&["posthaste", "--inbox"])),

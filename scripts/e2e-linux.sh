@@ -24,6 +24,9 @@ active(){ xdotool getactivewindow 2>/dev/null; }
 capture_visible(){ xdotool search --onlyvisible --name '^Posthaste$' 2>/dev/null | head -1; }
 wait_for(){ for _ in $(seq 1 "${2:-50}"); do eval "$1" && return 0; sleep 0.1; done; return 1; }
 sql()  { sqlite3 "$DB" "$1" 2>/dev/null; }
+# The newest migration's version, read from the source of truth so this
+# script does not go stale when the next migration lands.
+LATEST_SCHEMA=$(grep -oE 'version: [0-9]+' src-tauri/crates/core/src/migrations.rs | tail -1 | grep -oE '[0-9]+')
 
 Xvfb $DISPLAY -screen 0 1440x900x24 >/dev/null 2>&1 & PIDS="$!"
 sleep 1
@@ -39,7 +42,7 @@ sleep 1
 echo "Startup"
 check "main window appears" "wait_for 'xdotool search --onlyvisible --name \"^Posthaste\$\" >/dev/null 2>&1' 150"
 check "database file created" "wait_for '[ -f \"$DB\" ]' 50"
-check "schema is at version 2" "[ \"\$(sql 'PRAGMA user_version')\" = 2 ]"
+check "schema is at version $LATEST_SCHEMA" "[ \"\$(sql 'PRAGMA user_version')\" = \"$LATEST_SCHEMA\" ]"
 check "no shortcut registration failure logged" "! grep -qi 'not registered' \"$WORK/app.log\""
 sleep 1.5; shot 01-inbox-empty
 

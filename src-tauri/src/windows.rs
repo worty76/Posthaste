@@ -1,4 +1,5 @@
-//! The two windows: the floating capture panel and the main inbox.
+//! The three windows: the floating capture panel, the Today glance and the
+//! main inbox.
 
 use std::sync::atomic::Ordering;
 use std::time::{Duration, Instant};
@@ -14,12 +15,17 @@ use crate::state::{lock, AppState};
 
 pub const MAIN: &str = "main";
 pub const CAPTURE: &str = "capture";
+pub const TODAY: &str = "today";
 
 /// Logical size of the capture window, including the transparent margin its
 /// shadow is drawn in.
 const CAPTURE_HEIGHT: f64 = 268.0;
 const CAPTURE_MIN_WIDTH: f64 = 520.0;
 const CAPTURE_MAX_WIDTH: f64 = 700.0;
+/// Logical size of the Today window, including the transparent margin its
+/// shadow is drawn in.
+const TODAY_WIDTH: f64 = 440.0;
+const TODAY_HEIGHT: f64 = 540.0;
 /// Focus changes this soon after showing are the window manager settling,
 /// not the user leaving.
 const BLUR_GRACE: Duration = Duration::from_millis(300);
@@ -90,6 +96,39 @@ pub fn create(app: &AppHandle) -> tauri::Result<()> {
             if settled && state.settings().hide_on_blur {
                 // The user moved on by themselves: don't pull focus back.
                 hide_capture(&handle, false);
+            }
+        }
+        _ => {}
+    });
+
+    let today = WebviewWindowBuilder::new(app, TODAY, WebviewUrl::App("index.html".into()))
+        .title("Posthaste Today")
+        .inner_size(TODAY_WIDTH, TODAY_HEIGHT)
+        .decorations(false)
+        .transparent(true)
+        .shadow(false)
+        .maximizable(false)
+        .minimizable(false)
+        .always_on_top(true)
+        .skip_taskbar(true)
+        .visible_on_all_workspaces(true)
+        .visible(false)
+        .build()?;
+
+    let handle = app.clone();
+    today.on_window_event(move |event| match event {
+        WindowEvent::CloseRequested { api, .. } => {
+            api.prevent_close();
+            hide_today(&handle, true);
+        }
+        WindowEvent::Focused(false) => {
+            let state = handle.state::<AppState>();
+            let settled = lock(&state.today_shown_at)
+                .map(|t| t.elapsed() > BLUR_GRACE)
+                .unwrap_or(false);
+            if settled && state.settings().hide_on_blur {
+                // The user moved on by themselves: don't pull focus back.
+                hide_today(&handle, false);
             }
         }
         _ => {}
@@ -168,6 +207,82 @@ pub fn hide_capture(app: &AppHandle, restore_focus: bool) {
     }
 }
 
+pub fn toggle_today(app: &AppHandle) {
+    let Some(window) = app.get_webview_window(TODAY) else {
+        return;
+    };
+    if window.is_visible().unwrap_or(false) {
+        hide_today(app, true);
+    } else {
+        show_today(app);
+    }
+}
+
+pub fn show_today(app: &AppHandle) {
+    let Some(window) = app.get_webview_window(TODAY) else {
+        log::error!("today window is missing");
+        return;
+    };
+    let state = app.state::<AppState>();
+
+    // Must happen before our window takes focus.
+    let previous = posthaste_platform::foreground_app();
+    *lock(&state.today_previous_app) = previous;
+
+    let placed = place_panel(
+        app,
+        &window,
+        state.settings().capture_position,
+        // A glance has one size: fixed width, clamped to the display.
+        |_| TODAY_WIDTH,
+        TODAY_HEIGHT,
+    );
+    *lock(&state.today_shown_at) = Some(Instant::now());
+
+    if let Err(e) = window.show() {
+        log::error!("today window could not be shown: {e}");
+        return;
+    }
+    // Some window managers only honour a position once the window is mapped.
+    if let Some(pos) = placed {
+        let _ = window.set_position(pos);
+    }
+    let _ = window.set_always_on_top(true);
+    if let Err(e) = window.set_focus() {
+        log::warn!("today window could not take focus: {e}");
+    }
+    let _ = window.emit("today-shown", ());
+}
+
+/// Hides the Today window. With `restore_focus`, hands focus back to the
+/// application the user was in when they opened the glance.
+pub fn hide_today(app: &AppHandle, restore_focus: bool) {
+    let state = app.state::<AppState>();
+    *lock(&state.today_shown_at) = None;
+    let previous = lock(&state.today_previous_app).take();
+    let Some(window) = app.get_webview_window(TODAY) else {
+        return;
+    };
+    let handle = app.clone();
+    // One main-thread step, so the hide and the re-activation cannot reorder.
+    let result = app.run_on_main_thread(move || {
+        if let Err(e) = window.hide() {
+            log::error!("today window could not be hidden: {e}");
+        }
+        if !restore_focus {
+            return;
+        }
+        match previous {
+            Some(prev) if posthaste_platform::activate(&prev) => {}
+            Some(_) => log::debug!("previous application could not be re-activated"),
+            None => release_focus(&handle),
+        }
+    });
+    if let Err(e) = result {
+        log::error!("could not schedule hiding the today window: {e}");
+    }
+}
+
 /// Gives focus up when no previous application was recorded: Posthaste
 /// itself was in front, or the platform cannot tell (Wayland). On macOS,
 /// hiding the app returns focus to whatever is behind it; we only do that
@@ -205,12 +320,34 @@ pub fn show_main(app: &AppHandle, view: Option<&str>) {
 }
 
 /// Sizes the capture window for the display the pointer is on and returns
-/// where it should go. `None` means the platform gave us nothing to work
-/// with (typical on Wayland, where the compositor places windows itself).
+/// where it should go.
 fn place_capture(
     app: &AppHandle,
     window: &WebviewWindow,
     position: CapturePosition,
+) -> Option<PhysicalPosition<i32>> {
+    // Capture takes a slice of the display, within its width bounds.
+    place_panel(
+        app,
+        window,
+        position,
+        |logical_area| (logical_area * 0.42).clamp(CAPTURE_MIN_WIDTH, CAPTURE_MAX_WIDTH),
+        CAPTURE_HEIGHT,
+    )
+}
+
+/// Sizes and places a floating panel on the display the pointer is on and
+/// returns where it should go. `width_for` decides the panel's logical width
+/// from the display's logical width; either way the result is clamped to the
+/// display and kept above a small floor. `None` means the platform gave us
+/// nothing to work with (typical on Wayland, where the compositor places
+/// windows itself).
+fn place_panel(
+    app: &AppHandle,
+    window: &WebviewWindow,
+    position: CapturePosition,
+    width_for: impl Fn(f64) -> f64,
+    logical_height: f64,
 ) -> Option<PhysicalPosition<i32>> {
     // The display under the pointer is the best cross-platform signal for
     // "the display the user is working on".
@@ -228,10 +365,11 @@ fn place_capture(
     let scale = monitor.scale_factor();
     let area = monitor.work_area();
     let (area_w, area_h) = (area.size.width as f64, area.size.height as f64);
+    let logical_area_w = area_w / scale;
 
-    let width = (area_w / scale * 0.42).clamp(CAPTURE_MIN_WIDTH, CAPTURE_MAX_WIDTH);
-    let width = width.min(area_w / scale - 16.0).max(280.0);
-    let (w, h) = ((width * scale).round(), (CAPTURE_HEIGHT * scale).round());
+    let width = width_for(logical_area_w);
+    let width = width.min(logical_area_w - 16.0).max(280.0);
+    let (w, h) = ((width * scale).round(), (logical_height * scale).round());
 
     let x = area.position.x as f64 + (area_w - w) / 2.0;
     let y = match position {
