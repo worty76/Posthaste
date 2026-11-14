@@ -8,11 +8,13 @@ import {
   defaultInboxShortcut,
   type AppInfo,
   type DataInfo,
+  type ResolvedLook,
   type Settings,
   type SettingsState,
   type ShortcutReport,
   type ShortcutStatus,
 } from "../lib/types";
+import { AppearanceSection } from "./AppearanceSection";
 import { ShortcutRecorder } from "./ShortcutRecorder";
 
 interface Props {
@@ -22,6 +24,7 @@ interface Props {
   update: (patch: Partial<Settings>) => Promise<void>;
   accept: (state: SettingsState) => void;
   notify: (text: string, kind?: "info" | "error") => void;
+  onPreviewLook: (look: ResolvedLook | null) => void;
 }
 
 function Row({ label, help, children }: { label: string; help?: ReactNode; children: ReactNode }) {
@@ -71,7 +74,15 @@ function formatBytes(n: number) {
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export function SettingsView({ info, settings, shortcuts, update, accept, notify }: Props) {
+export function SettingsView({
+  info,
+  settings,
+  shortcuts,
+  update,
+  accept,
+  notify,
+  onPreviewLook,
+}: Props) {
   const [data, setData] = useState<DataInfo | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [clearOpen, setClearOpen] = useState(false);
@@ -110,18 +121,12 @@ export function SettingsView({ info, settings, shortcuts, update, accept, notify
         <h2 className="settings__heading" id="s-general">
           General
         </h2>
-        <Row label="Appearance" help="System follows your operating system's light or dark mode.">
-          <Segmented
-            label="Appearance"
-            value={settings.theme}
-            options={[
-              { value: "system", label: "System" },
-              { value: "light", label: "Light" },
-              { value: "dark", label: "Dark" },
-            ]}
-            onChange={(theme) => void set({ theme })}
-          />
-        </Row>
+        <AppearanceSection
+          settings={settings}
+          update={update}
+          notify={notify}
+          onPreviewLook={onPreviewLook}
+        />
         <Row
           label="Launch at login"
           help="Start Posthaste when you sign in, so the shortcut is always ready."
@@ -331,7 +336,7 @@ export function SettingsView({ info, settings, shortcuts, update, accept, notify
         </Row>
         <Row
           label="Clear all data"
-          help="Deletes every note, draft and setting. This can't be undone."
+          help="Deletes every note, draft, look and setting. This can't be undone."
         >
           <Button variant="danger" onClick={() => setClearOpen(true)}>
             Clear data…
@@ -366,8 +371,8 @@ export function SettingsView({ info, settings, shortcuts, update, accept, notify
         }
       >
         <p className="dialog__text">
-          This permanently deletes every note, the current draft and your settings from this
-          computer. Export or back up first if you might want them again.
+          This permanently deletes every note, the current draft, your looks and your settings from
+          this computer. Export or back up first if you might want them again.
         </p>
         <TextField
           aria-label="Type DELETE to confirm"

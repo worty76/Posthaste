@@ -363,6 +363,59 @@
   margin: var(--s-4) var(--s-3) 0;
 }
 
+/* ---- Looks ---- */
+.looks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--s-2);
+}
+.look {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+  padding: var(--s-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: var(--t-sm);
+  text-align: left;
+  transition:
+    border-color var(--fast) var(--ease),
+    background var(--fast) var(--ease);
+}
+.look:hover {
+  background: var(--hover);
+}
+.look[aria-checked="true"] {
+  border-color: var(--accent-ink);
+  box-shadow: inset 0 0 0 1px var(--accent-ink);
+}
+.look > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.looks__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.swatch {
+  flex: none;
+  width: 44px;
+  height: 30px;
+}
+.swatch__default-bg {
+  fill: var(--bg);
+}
+.swatch__default-surface {
+  fill: var(--surface);
+}
+.swatch__default-accent {
+  fill: var(--accent);
+}
+
 /* ---- Settings ---- */
 .settings {
   display: grid;

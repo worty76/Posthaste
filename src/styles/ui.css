@@ -252,6 +252,11 @@
   color: var(--text-muted);
   font-size: var(--t-sm);
 }
+.dialog__alert {
+  color: var(--danger);
+  font-size: var(--t-sm);
+  line-height: var(--lh);
+}
 .dialog__actions {
   display: flex;
   justify-content: flex-end;

@@ -394,6 +394,27 @@ describe("settings", () => {
     expect(await screen.findByText("All data cleared")).toBeInTheDocument();
   });
 
+  it("warns that clearing data also removes looks", async () => {
+    const user = await openSettings();
+    await user.click(screen.getByRole("button", { name: "Clear data…" }));
+    expect(screen.getByRole("dialog", { name: "Delete all notes?" })).toHaveTextContent(
+      /your looks/,
+    );
+  });
+
+  it("keeps the selected look when another setting changes", async () => {
+    api.lookActive.mockResolvedValue(null);
+    api.lookList.mockResolvedValue([]);
+    api.settingsGet.mockResolvedValue(settingsState({ look_id: "builtin:ink" }));
+    const user = await openSettings();
+    await user.click(screen.getByRole("switch", { name: "Close after saving" }));
+    await waitFor(() =>
+      expect(api.settingsUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ look_id: "builtin:ink", hide_after_save: false }),
+      ),
+    );
+  });
+
   it("reports export results and stays quiet when the dialog is cancelled", async () => {
     api.dataExport.mockResolvedValueOnce(null).mockResolvedValueOnce(12);
     const user = await openSettings();

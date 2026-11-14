@@ -41,7 +41,7 @@ function isTyping(target: EventTarget | null) {
 
 export function MainWindow({ info }: { info: AppInfo }) {
   const { settings, shortcuts, update, accept } = useSettings();
-  useAppearance(settings);
+  const { setPreview } = useAppearance(settings);
   const { toasts, show, dismiss } = useToasts();
 
   const [view, setView] = useState<View>("inbox");
@@ -440,6 +440,7 @@ export function MainWindow({ info }: { info: AppInfo }) {
                   update={update}
                   accept={accept}
                   notify={(text, kind) => show(text, { kind })}
+                  onPreviewLook={setPreview}
                 />
               ) : null
             ) : !loaded ? null : visible.length === 0 ? (
