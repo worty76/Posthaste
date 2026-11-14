@@ -33,8 +33,6 @@ telemetry — nothing leaves your computer unless you turn on AI polish yourself
 
 <p align="center">
   <img src="docs/images/screenshot-inbox.png" width="620" alt="The inbox: notes grouped by day, searchable, keyboard-driven">
-  <br><br>
-  <img src="docs/images/screenshot-today-strawberry.png" width="300" alt="The same Today window wearing the Strawberry Milk look">
 </p>
 
 ## Why Posthaste

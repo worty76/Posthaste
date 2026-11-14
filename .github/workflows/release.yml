@@ -3,6 +3,15 @@ name: Build and release
 on:
   push:
     branches: [main]
+    # Docs-only pushes change nothing in the app: nothing to build or release.
+    # Any non-ignored file anywhere in the push builds as usual.
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "landing-page/**"
+      - "scripts/**"
+      - ".gitignore"
+      - "LICENSE"
   workflow_dispatch:
 
 jobs:
