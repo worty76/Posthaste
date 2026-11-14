@@ -554,3 +554,96 @@ mod derive_tests {
         crate::look::color::Rgb::parse(r.tokens.get("--surface").unwrap()).unwrap()
     }
 }
+
+mod code_tests {
+    use super::doc;
+    use crate::look::code::{b64_decode, b64_encode, decode_code, encode_code, CODE_PREFIX};
+
+    fn coded() -> String {
+        encode_code(&doc())
+    }
+
+    #[test]
+    fn base64_round_trips_every_length_up_to_forty() {
+        let bytes: Vec<u8> = (0..=255u8).cycle().take(41).collect();
+        for len in 0..=40usize {
+            let input = &bytes[..len];
+            let encoded = b64_encode(input);
+            assert!(
+                !encoded.contains('+') && !encoded.contains('/') && !encoded.contains('='),
+                "url-safe without padding: {encoded:?}"
+            );
+            assert_eq!(b64_decode(&encoded).as_deref(), Some(input), "length {len}");
+        }
+    }
+
+    #[test]
+    fn base64_rejects_wrong_lengths_and_the_standard_alphabet() {
+        assert_eq!(b64_decode("a"), None);
+        assert_eq!(b64_decode("a+b"), None);
+    }
+
+    #[test]
+    fn a_code_encodes_and_decodes_back_to_the_same_document() {
+        let code = coded();
+        assert!(code.starts_with(CODE_PREFIX));
+        assert_eq!(decode_code(&code).unwrap(), doc());
+    }
+
+    #[test]
+    fn the_code_survives_what_chat_apps_do_to_text() {
+        let code = coded();
+        let mut wrapped = String::new();
+        for (i, c) in code.chars().enumerate() {
+            wrapped.push(c);
+            if (i + 1) % 20 == 0 {
+                wrapped.push(' ');
+            }
+            if (i + 1) % 40 == 0 {
+                wrapped.push('\n');
+            }
+        }
+        assert_eq!(decode_code(&wrapped).unwrap(), doc());
+        assert_eq!(decode_code(&format!("\"{code}\"")).unwrap(), doc());
+        assert_eq!(decode_code(&format!("`{code}`")).unwrap(), doc());
+        assert_eq!(decode_code(&format!("  \n{code}  \n")).unwrap(), doc());
+        assert_eq!(decode_code(&doc().to_json()).unwrap(), doc());
+    }
+
+    #[test]
+    fn a_cut_off_code_reports_incomplete() {
+        let cut = &coded()[..coded().len() - 10];
+        let err = decode_code(cut).unwrap_err().to_string();
+        assert!(err.contains("incomplete"), "got: {err}");
+    }
+
+    #[test]
+    fn something_else_entirely_reports_the_missing_prefix() {
+        let err = decode_code("hello").unwrap_err().to_string();
+        assert!(err.contains("posthaste-look:1:"), "got: {err}");
+    }
+
+    #[test]
+    fn a_code_from_a_newer_version_reports_just_that() {
+        let err = decode_code("posthaste-look:2:AAAA")
+            .unwrap_err()
+            .to_string();
+        assert!(err.contains("newer version"), "got: {err}");
+    }
+
+    #[test]
+    fn an_oversized_input_is_too_large() {
+        let big = format!("{CODE_PREFIX}{}", "A".repeat(9000));
+        let err = decode_code(&big).unwrap_err().to_string();
+        assert!(err.contains("too large"), "got: {err}");
+    }
+
+    #[test]
+    fn a_code_for_an_unreadable_look_shows_the_validation_message() {
+        let mut bad = doc();
+        bad.colors.text = bad.colors.bg.clone();
+        let err = decode_code(&encode_code(&bad)).unwrap_err().to_string();
+        assert!(err.contains("too similar to read"), "got: {err}");
+        assert!(!err.contains("incomplete"), "got: {err}");
+    }
+}
