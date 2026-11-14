@@ -3,6 +3,7 @@
 
 mod db;
 mod error;
+pub mod look;
 pub mod migrations;
 mod model;
 mod transfer;
