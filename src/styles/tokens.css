@@ -49,23 +49,23 @@
 :root,
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #17171a;
-  --bg-sunken: #131316;
-  --surface: #1e1e22;
-  --surface-raised: #232328;
+  --bg: #0f0f0f;
+  --bg-sunken: #0c0c0c;
+  --surface: #181818;
+  --surface-raised: #1f1f1f;
   --hover: rgba(255, 255, 255, 0.05);
   --active: rgba(255, 255, 255, 0.08);
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.14);
-  --text: #ededef;
-  --text-muted: #a0a0a9;
-  --text-faint: #74747e;
-  /* The one accent: the amber of the caret. */
-  --accent: #e5a84b;
+  --text: #f2f2f2;
+  --text-muted: #9c9c9c;
+  --text-faint: #6e6e6e;
+  /* The one accent: pure white, matching the Ink look. */
+  --accent: #ffffff;
   /* The accent pulled to readable strength, for text and focus indicators. */
-  --accent-ink: #e5a84b;
-  --accent-soft: rgba(229, 168, 75, 0.14);
-  --on-accent: #1b1407;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(255, 255, 255, 0.14);
+  --on-accent: #0f0f0f;
   --danger: #f0736a;
   --danger-soft: rgba(240, 115, 106, 0.12);
   --ok: #6fbf8b;
@@ -78,29 +78,30 @@
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f6f6f4;
-  --bg-sunken: #eeeeeb;
+  --bg: #f5f5f5;
+  --bg-sunken: #eeeeee;
   --surface: #ffffff;
   --surface-raised: #ffffff;
-  --hover: rgba(20, 20, 25, 0.045);
-  --active: rgba(20, 20, 25, 0.08);
-  --border: rgba(20, 20, 25, 0.1);
-  --border-strong: rgba(20, 20, 25, 0.18);
-  --text: #1d1d20;
-  --text-muted: #5f5f68;
-  --text-faint: #85858e;
-  --accent: #a2640c;
-  --accent-ink: #a2640c;
-  --accent-soft: rgba(162, 100, 12, 0.1);
+  --hover: rgba(0, 0, 0, 0.045);
+  --active: rgba(0, 0, 0, 0.08);
+  --border: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.18);
+  --text: #1a1a1a;
+  --text-muted: #616161;
+  --text-faint: #8a8a8a;
+  /* Ink on paper: the same monochrome accent, dark enough to read. */
+  --accent: #1a1a1a;
+  --accent-ink: #1a1a1a;
+  --accent-soft: rgba(0, 0, 0, 0.1);
   --on-accent: #ffffff;
   --danger: #c0352b;
   --danger-soft: rgba(192, 53, 43, 0.08);
   --ok: #2f7d4f;
   --knob: #ffffff;
-  --knob-shadow: 0 1px 2px rgba(20, 20, 25, 0.25);
-  --scrim: rgba(20, 20, 25, 0.35);
-  --shadow-float: 0 0 0 1px rgba(20, 20, 25, 0.1), 0 10px 30px rgba(20, 20, 25, 0.16);
-  --shadow-pop: 0 0 0 1px rgba(20, 20, 25, 0.08), 0 4px 14px rgba(20, 20, 25, 0.1);
+  --knob-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --scrim: rgba(0, 0, 0, 0.35);
+  --shadow-float: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 10px 30px rgba(0, 0, 0, 0.16);
+  --shadow-pop: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 4px 14px rgba(0, 0, 0, 0.1);
 }
 
 /* Looks: shape and font are ids a look selects with data-shape/data-font.
