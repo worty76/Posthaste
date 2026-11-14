@@ -232,3 +232,39 @@ describe("drafts", () => {
     await waitFor(() => expect(api.draftSet).toHaveBeenCalledWith("interrupted", null));
   });
 });
+
+describe("ai polish", () => {
+  it("replaces the note text with the polished version", async () => {
+    api.settingsGet.mockResolvedValue(
+      settingsState({ ai_provider: "anthropic", ai_api_key: "key" }),
+    );
+    api.aiPolish.mockResolvedValue("Return the library books");
+    const user = await open();
+    await user.type(input(), "retun libary book");
+    await user.click(screen.getByRole("button", { name: "Polish note with AI" }));
+    expect(api.aiPolish).toHaveBeenCalledWith("retun libary book");
+    expect(await screen.findByText("Polished")).toBeInTheDocument();
+    expect(input()).toHaveValue("Return the library books");
+  });
+
+  it("keeps the note and shows the error when polishing fails", async () => {
+    api.settingsGet.mockResolvedValue(
+      settingsState({ ai_provider: "anthropic", ai_api_key: "key" }),
+    );
+    api.aiPolish.mockRejectedValue({
+      code: "ai_provider_error",
+      message:
+        "The AI provider returned an error (HTTP 401). Check the API key and model in Settings.",
+    });
+    const user = await open();
+    await user.type(input(), "rough text");
+    await user.click(screen.getByRole("button", { name: "Polish note with AI" }));
+    expect(await screen.findByText(/The AI provider returned an error/)).toBeInTheDocument();
+    expect(input()).toHaveValue("rough text");
+  });
+
+  it("hides the polish button when AI is off", async () => {
+    await open();
+    expect(screen.queryByRole("button", { name: "Polish note with AI" })).toBeNull();
+  });
+});

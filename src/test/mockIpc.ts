@@ -16,6 +16,9 @@ export const defaultSettings: Settings = {
   enter_behavior: "save",
   draft_retention: "forever",
   look_id: "builtin:ink",
+  ai_provider: "none",
+  ai_api_key: "",
+  ai_model: "",
 };
 
 export function settingsState(patch: Partial<Settings> = {}): SettingsState {
@@ -83,6 +86,7 @@ export const api = {
   lookImport: vi.fn(),
   lookExportCode: vi.fn(),
   lookDelete: vi.fn(),
+  aiPolish: vi.fn(),
 };
 
 /** Resets every command to a harmless default. Call in `beforeEach`. */

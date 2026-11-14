@@ -19,11 +19,37 @@ const MINIATURE_NOTES: Record<string, { note: string; category: string }> = {
   ink: { note: "Gather receipts, ugh", category: "life" },
 };
 
-const PLATFORMS: { key: "mac" | "windows" | "linux"; name: string }[] = [
-  { key: "mac", name: "macOS" },
-  { key: "windows", name: "Windows" },
-  { key: "linux", name: "Linux" },
+const PLATFORMS: { key: "mac" | "windows" | "linux"; name: string; asset: string }[] = [
+  { key: "mac", name: "macOS", asset: ".dmg" },
+  { key: "windows", name: "Windows", asset: "x64-setup.exe" },
+  { key: "linux", name: "Linux", asset: ".AppImage" },
 ];
+
+/** Direct download links, baked at build time from the latest release the
+    build-and-release workflow published. Null for a platform means its
+    installer is not in that release yet. */
+async function getDownloads(): Promise<Record<string, string | null>> {
+  try {
+    const res = await fetch("https://api.github.com/repos/worty76/Posthaste/releases/latest", {
+      cache: "no-store",
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (!res.ok) return { mac: null, windows: null, linux: null };
+    const data = (await res.json()) as { assets?: { name?: string; browser_download_url?: string }[] };
+    const out: Record<string, string | null> = { mac: null, windows: null, linux: null };
+    for (const a of data.assets ?? []) {
+      const name = (a.name ?? "").toLowerCase();
+      const url = a.browser_download_url ?? null;
+      if (!url) continue;
+      if (name.endsWith(".dmg") && out.mac === null) out.mac = url;
+      if (name.endsWith("x64-setup.exe") && out.windows === null) out.windows = url;
+      if (name.endsWith(".appimage") && out.linux === null) out.linux = url;
+    }
+    return out;
+  } catch {
+    return { mac: null, windows: null, linux: null };
+  }
+}
 
 /** Stargazer count, fetched once at build time and baked into the static
     HTML. The page itself still makes no runtime requests to anyone; when
@@ -45,7 +71,7 @@ async function getStars(): Promise<number | null> {
 }
 
 export default async function Page() {
-  const stars = await getStars();
+  const [stars, downloads] = await Promise.all([getStars(), getDownloads()]);
 
   return (
     <>
@@ -186,14 +212,14 @@ export default async function Page() {
             <div>
               <ul className="privacy-list privacy-list--no">
                 <li>No account</li>
-                <li>No internet needed</li>
                 <li>No tracking of any kind</li>
-                <li>No AI reading your notes</li>
                 <li>Even the app's logs skip your note text</li>
+                <li>AI polish is opt-in — off until you add your own key</li>
               </ul>
               <ul className="privacy-list privacy-list--yes" style={{ marginTop: 18 }}>
                 <li>Notes, drafts and themes live in one file on your computer</li>
                 <li>Export, import and backup are files you keep</li>
+                <li>Offline by default — AI polish is the only online feature, and only on request</li>
                 <li>This page makes no third-party requests either</li>
               </ul>
             </div>
@@ -222,12 +248,13 @@ export default async function Page() {
           <div className="get-grid">
             <div className="get-rows">
               {PLATFORMS.map((p) =>
-                PRODUCT.downloads[p.key] ? (
+                downloads[p.key] ? (
                   <div className="get-row" key={p.key}>
                     <div>
                       <div className="get-row__name">{p.name}</div>
+                      <div className="get-row__note">Free · installer</div>
                     </div>
-                    <a className="btn btn--primary" href={PRODUCT.downloads[p.key]!}>
+                    <a className="btn btn--primary" href={downloads[p.key]!}>
                       Download
                     </a>
                   </div>
@@ -235,7 +262,7 @@ export default async function Page() {
                   <div className="get-row" key={p.key}>
                     <div>
                       <div className="get-row__name">{p.name}</div>
-                      <div className="get-row__note">Installer coming soon</div>
+                      <div className="get-row__note">Installer not in the latest build</div>
                     </div>
                     <a className="btn" href={PRODUCT.repoUrl}>
                       View on GitHub
@@ -245,12 +272,12 @@ export default async function Page() {
               )}
               <p className="early-note">
                 Early release: carefully tested on Linux so far; macOS and Windows installers are
-                next.
+                next. Every update to the main branch rebuilds these files automatically.
               </p>
             </div>
             <div>
               <h3 style={{ fontSize: "var(--t-md)", marginBottom: 8 }}>
-                Comfortable with a terminal?
+                Prefer building it yourself?
               </h3>
               <pre className="build-snippet">
                 <b>git</b> clone {PRODUCT.repoUrl}

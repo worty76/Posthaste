@@ -170,3 +170,25 @@ html.is-capture body {
     display: none;
   }
 }
+
+.capture__polish {
+  flex: none;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: var(--t-xs);
+  transition:
+    color var(--fast) var(--ease),
+    border-color var(--fast) var(--ease);
+}
+.capture__polish:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.capture__polish:disabled {
+  opacity: 0.45;
+}

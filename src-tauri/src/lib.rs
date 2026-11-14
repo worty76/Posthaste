@@ -1,6 +1,7 @@
 //! Posthaste desktop shell: wires storage, windows, shortcuts and the tray
 //! together. Business rules live in `posthaste-core`.
 
+mod ai;
 mod commands;
 mod error;
 mod shortcuts;
@@ -126,6 +127,7 @@ pub fn run() {
             commands::look_import,
             commands::look_export_code,
             commands::look_delete,
+            ai::ai_polish,
         ])
         .setup(|app| {
             let handle = app.handle().clone();

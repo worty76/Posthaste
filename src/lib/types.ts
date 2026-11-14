@@ -37,6 +37,7 @@ export interface Draft {
 }
 
 export type Theme = "system" | "light" | "dark";
+export type AiProvider = "none" | "anthropic" | "openai" | "gemini";
 export type CapturePosition = "center" | "upper";
 export type EnterBehavior = "save" | "newline";
 export type DraftRetention = "forever" | "week" | "day";
@@ -53,6 +54,9 @@ export interface Settings {
   enter_behavior: EnterBehavior;
   draft_retention: DraftRetention;
   look_id: string | null;
+  ai_provider: AiProvider;
+  ai_api_key: string;
+  ai_model: string;
 }
 
 // Mirrors the look types in src-tauri/crates/core/src/look/. Keep in step.

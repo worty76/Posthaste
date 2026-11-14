@@ -25,6 +25,7 @@ export function CaptureWindow({ os }: { os: Os }) {
   const [categories, setCategories] = useState<string[]>([]);
   const [status, setStatus] = useState<Status>(IDLE);
   const [source, setSource] = useState<string | null>(null);
+  const [polishing, setPolishing] = useState(false);
   const [shake, setShake] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const panelRef = useRef<HTMLElement>(null);
@@ -133,6 +134,25 @@ export function CaptureWindow({ os }: { os: Os }) {
     }
   };
 
+  const polish = async () => {
+    if (polishing || content.trim() === "") {
+      setStatus({ kind: "empty", text: "Nothing to polish yet" });
+      setShake(true);
+      return;
+    }
+    setPolishing(true);
+    setStatus({ kind: "saving", text: "Polishing…" });
+    try {
+      const polished = await api.aiPolish(content);
+      edit(polished, category);
+      setStatus({ kind: "saved", text: "Polished" });
+    } catch (e) {
+      setStatus({ kind: "error", text: toAppError(e).message });
+    } finally {
+      setPolishing(false);
+    }
+  };
+
   const dismiss = async () => {
     await drafts.flush();
     await api.captureDismiss().catch(() => undefined);
@@ -159,8 +179,13 @@ export function CaptureWindow({ os }: { os: Os }) {
       void dismiss();
       return;
     }
-    if (e.key !== "Enter") return;
     const mod = hasMod(e, os);
+    if (mod && e.key.toLowerCase() === "i") {
+      e.preventDefault();
+      void polish();
+      return;
+    }
+    if (e.key !== "Enter") return;
     if (enterSaves) {
       if (e.shiftKey && !mod) return; // newline
       e.preventDefault();
@@ -237,6 +262,18 @@ export function CaptureWindow({ os }: { os: Os }) {
               <option key={c} value={c} />
             ))}
           </datalist>
+
+          {settings?.ai_provider && settings.ai_provider !== "none" && (
+            <button
+              type="button"
+              className="capture__polish"
+              onClick={() => void polish()}
+              disabled={polishing}
+              aria-label="Polish note with AI"
+            >
+              ✨ Polish
+            </button>
+          )}
 
           <span
             className="capture__status"

@@ -60,6 +60,8 @@ export const api = {
   lookImport: (code: string) => invoke<LookSummary>("look_import", { code }),
   lookExportCode: (id: string) => invoke<string>("look_export_code", { id }),
   lookDelete: (id: string) => invoke<void>("look_delete", { id }),
+
+  aiPolish: (text: string) => invoke<string>("ai_polish", { text }),
 };
 
 export interface Events {

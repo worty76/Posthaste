@@ -107,6 +107,18 @@ pub enum EnterBehavior {
     Newline,
 }
 
+/// Which AI provider polishes notes, if any. Off by default: nothing is
+/// sent anywhere until the user picks a provider and adds their own key.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum AiProvider {
+    #[default]
+    None,
+    Anthropic,
+    OpenAI,
+    Gemini,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum DraftRetention {
@@ -153,6 +165,11 @@ pub struct Settings {
     /// The selected look. `None` is the Default look (system/light/dark);
     /// out of the box every install wears Ink.
     pub look_id: Option<String>,
+    /// AI polish: the provider, the user's own API key, and the model
+    /// (empty string = the provider's small default model).
+    pub ai_provider: AiProvider,
+    pub ai_api_key: String,
+    pub ai_model: String,
 }
 
 impl Default for Settings {
@@ -169,6 +186,9 @@ impl Default for Settings {
             enter_behavior: EnterBehavior::Save,
             draft_retention: DraftRetention::Forever,
             look_id: Some(crate::look::DEFAULT_LOOK_ID.into()),
+            ai_provider: AiProvider::None,
+            ai_api_key: String::new(),
+            ai_model: String::new(),
         }
     }
 }

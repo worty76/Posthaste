@@ -1,0 +1,47 @@
+# Builds installers for all three platforms on every push to main and
+# publishes them as a GitHub release, so the website's download buttons can
+# link to real files. The tag is the app version from tauri.conf.json, so a
+# version bump creates a new release; re-pushing the same version replaces
+# its files.
+name: Build and release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+          - platform: ubuntu-22.04
+          - platform: windows-latest
+    runs-on: ${{ matrix.platform }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev build-essential
+      - name: Install frontend dependencies
+        run: npm install
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: "Posthaste v__VERSION__"
+          releaseBody: "Installers for Posthaste. Linux users: the .AppImage or .deb both work. See the README for platform notes."
+          releaseDraft: false
+          prerelease: false

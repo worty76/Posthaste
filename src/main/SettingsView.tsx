@@ -271,6 +271,59 @@ export function SettingsView({
         </Row>
       </section>
 
+      <section className="settings__section" aria-labelledby="s-ai">
+        <h2 className="settings__heading" id="s-ai">
+          AI polish
+        </h2>
+        <Row
+          label="Provider"
+          help="Off by default. Polishing sends the note text to the provider you choose, using your own API key. The key stays on this computer."
+        >
+          <Segmented
+            label="AI provider"
+            value={settings.ai_provider}
+            options={[
+              { value: "none", label: "Off" },
+              { value: "anthropic", label: "Claude" },
+              { value: "openai", label: "OpenAI" },
+              { value: "gemini", label: "Gemini" },
+            ]}
+            onChange={(ai_provider) => void set({ ai_provider })}
+          />
+        </Row>
+        {settings.ai_provider !== "none" && (
+          <>
+            <Row label="API key">
+              <TextField
+                type="password"
+                aria-label="AI API key"
+                value={settings.ai_api_key}
+                placeholder="Paste your API key"
+                onChange={(e) => void set({ ai_api_key: e.target.value })}
+                spellCheck={false}
+                autoComplete="off"
+              />
+            </Row>
+            <Row label="Model" help="Leave empty to use the provider's small, fast default.">
+              <TextField
+                aria-label="AI model"
+                value={settings.ai_model}
+                placeholder={
+                  settings.ai_provider === "anthropic"
+                    ? "claude-haiku-4-5"
+                    : settings.ai_provider === "openai"
+                      ? "gpt-4o-mini"
+                      : "gemini-2.0-flash"
+                }
+                onChange={(e) => void set({ ai_model: e.target.value })}
+                spellCheck={false}
+                autoComplete="off"
+              />
+            </Row>
+          </>
+        )}
+      </section>
+
       <section className="settings__section" aria-labelledby="s-data">
         <h2 className="settings__heading" id="s-data">
           Data

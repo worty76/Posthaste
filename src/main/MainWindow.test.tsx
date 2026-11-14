@@ -402,6 +402,22 @@ describe("settings", () => {
     );
   });
 
+  it("sets up AI polish from the settings section", async () => {
+    const user = await openSettings();
+    await user.click(screen.getByRole("radio", { name: "Claude" }));
+    await waitFor(() =>
+      expect(api.settingsUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ ai_provider: "anthropic" }),
+      ),
+    );
+    await user.type(screen.getByLabelText("AI API key"), "sk-test");
+    await waitFor(() =>
+      expect(api.settingsUpdate).toHaveBeenLastCalledWith(
+        expect.objectContaining({ ai_api_key: "sk-test" }),
+      ),
+    );
+  });
+
   it("keeps the selected look when another setting changes", async () => {
     api.lookActive.mockResolvedValue(null);
     api.lookList.mockResolvedValue([]);

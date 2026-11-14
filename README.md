@@ -222,8 +222,8 @@ window is focused, or position its own windows.
 
 ## Not in this version
 
-Accounts, sync, AI features, reminders, calendars, folders, statistics. On
-purpose.
+Accounts, sync, reminders, calendars, folders, statistics. On purpose. (The
+optional AI polish is the one online feature, and only if you turn it on.)
 
 ## Licence
 
