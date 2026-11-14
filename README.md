@@ -23,6 +23,20 @@ focus returns to what you were doing, and the note is waiting in your inbox.
 Your notes live in one SQLite file on your machine. No account, no sync, no
 telemetry — nothing leaves your computer unless you turn on AI polish yourself.
 
+<p align="center">
+  <img src="docs/images/screenshot-capture.png" width="620" alt="Capture a note from anywhere: press the shortcut, type, Enter">
+</p>
+
+<p align="center">
+  <img src="docs/images/screenshot-today.png" width="340" alt="The Today window: what is on today's plate and how much of it is done">
+</p>
+
+<p align="center">
+  <img src="docs/images/screenshot-inbox.png" width="620" alt="The inbox: notes grouped by day, searchable, keyboard-driven">
+  <br><br>
+  <img src="docs/images/screenshot-today-strawberry.png" width="300" alt="The same Today window wearing the Strawberry Milk look">
+</p>
+
 ## Why Posthaste
 
 - **Instant capture** — the windows are created at startup and hidden, so the
