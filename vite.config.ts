@@ -12,7 +12,7 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     css: false,
     restoreMocks: true,
-    // The marketing site in website/ has its own runner and alias setup.
-    exclude: ["**/node_modules/**", "website/**"],
+    // The marketing site in landing-page/ has its own runner and alias setup.
+    exclude: ["**/node_modules/**", "landing-page/**"],
   },
 });

@@ -1,4 +1,4 @@
-# website/ — the Posthaste marketing site
+# landing-page/ — the Posthaste marketing site
 
 This folder is the marketing site only. It is a Next.js (static export) app:
 `npm install && npm run dev` here, `npm run build` writes plain files to
@@ -32,4 +32,4 @@ commands in the primary sections. Developer details live only in the quiet
 
 Tests: `npm test` (share-code, contrast, derivation — derivation is pinned
 to the app's Rust golden values). Formatting: `npm run format`. Never edit
-files outside `website/` and `docs/` when working on the site.
+files outside `landing-page/` and `docs/` when working on the site.
