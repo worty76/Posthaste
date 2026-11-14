@@ -646,4 +646,69 @@ mod code_tests {
         assert!(err.contains("too similar to read"), "got: {err}");
         assert!(!err.contains("incomplete"), "got: {err}");
     }
+
+    #[test]
+    fn every_bundled_look_round_trips_through_its_code() {
+        for (id, d) in crate::look::bundled::bundled() {
+            assert_eq!(decode_code(&encode_code(&d)).unwrap(), d, "{id}");
+        }
+    }
+}
+
+mod bundled_tests {
+    use crate::look::bundled::bundled;
+    use crate::look::code::{decode_code, encode_code};
+    use crate::look::derive::resolve;
+
+    #[test]
+    fn the_six_bundled_looks_ship_in_gallery_order() {
+        let looks = bundled();
+        let ids: Vec<&str> = looks.iter().map(|(id, _)| id.as_str()).collect();
+        assert_eq!(
+            ids,
+            [
+                "builtin:strawberry-milk",
+                "builtin:matcha",
+                "builtin:lavender-haze",
+                "builtin:midnight-grape",
+                "builtin:blueberry",
+                "builtin:ink",
+            ]
+        );
+    }
+
+    #[test]
+    fn every_bundled_look_is_valid_resolves_and_has_a_unique_name() {
+        let looks = bundled();
+        for (id, d) in &looks {
+            if let Err(e) = d.validate() {
+                panic!("{id} fails validation: {e}");
+            }
+            if let Err(e) = resolve(id, d) {
+                panic!("{id} fails to resolve: {e}");
+            }
+        }
+        let mut names: Vec<&str> = looks.iter().map(|(_, d)| d.name.as_str()).collect();
+        names.sort();
+        let unique = names.len() == names.iter().len() && names.windows(2).all(|w| w[0] != w[1]);
+        assert!(unique, "names are unique: {names:?}");
+    }
+
+    #[test]
+    fn the_ink_accent_stays_dark_enough_for_its_own_text() {
+        let ink = bundled()
+            .into_iter()
+            .find(|(id, _)| id == "builtin:ink")
+            .map(|(_, d)| d)
+            .expect("ink ships with the app");
+        let tokens = resolve("builtin:ink", &ink).unwrap().tokens;
+        assert_eq!(tokens.get("--on-accent").unwrap(), "#0f0f0f");
+    }
+
+    #[test]
+    fn every_bundled_look_survives_its_share_code() {
+        for (id, d) in bundled() {
+            assert_eq!(decode_code(&encode_code(&d)).unwrap(), d, "{id}");
+        }
+    }
 }

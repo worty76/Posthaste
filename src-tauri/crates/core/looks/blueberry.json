@@ -1,0 +1,15 @@
+{
+  "format": "posthaste-look",
+  "version": 1,
+  "name": "Blueberry",
+  "author": "Posthaste",
+  "base": "dark",
+  "colors": {
+    "bg": "#121826",
+    "surface": "#1a2236",
+    "text": "#e6edff",
+    "accent": "#6ea8ff"
+  },
+  "shape": "soft",
+  "font": "system"
+}

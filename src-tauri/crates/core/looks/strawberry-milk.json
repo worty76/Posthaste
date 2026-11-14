@@ -1,0 +1,15 @@
+{
+  "format": "posthaste-look",
+  "version": 1,
+  "name": "Strawberry Milk",
+  "author": "Posthaste",
+  "base": "light",
+  "colors": {
+    "bg": "#fff5f7",
+    "surface": "#ffffff",
+    "text": "#4a2c3a",
+    "accent": "#ff8fb1"
+  },
+  "shape": "round",
+  "font": "rounded"
+}

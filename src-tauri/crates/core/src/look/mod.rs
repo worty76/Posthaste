@@ -2,6 +2,7 @@
 //! in Rust; the UI only applies the result. Validation lives here and nowhere
 //! else, so a look can never reach the DOM unchecked.
 
+pub mod bundled;
 pub mod code;
 pub mod color;
 pub mod derive;

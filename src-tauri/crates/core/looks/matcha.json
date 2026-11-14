@@ -1,0 +1,15 @@
+{
+  "format": "posthaste-look",
+  "version": 1,
+  "name": "Matcha",
+  "author": "Posthaste",
+  "base": "light",
+  "colors": {
+    "bg": "#f3f7ee",
+    "surface": "#ffffff",
+    "text": "#2f3a2a",
+    "accent": "#8bc34a"
+  },
+  "shape": "soft",
+  "font": "system"
+}

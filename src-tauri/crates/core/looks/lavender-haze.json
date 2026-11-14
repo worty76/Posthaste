@@ -1,0 +1,15 @@
+{
+  "format": "posthaste-look",
+  "version": 1,
+  "name": "Lavender Haze",
+  "author": "Posthaste",
+  "base": "light",
+  "colors": {
+    "bg": "#f6f2ff",
+    "surface": "#ffffff",
+    "text": "#35295a",
+    "accent": "#b79cff"
+  },
+  "shape": "round",
+  "font": "rounded"
+}
