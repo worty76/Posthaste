@@ -1,0 +1,101 @@
+/* Design tokens. Everything visual in the app is built from these. */
+
+:root {
+  /* Spacing: a 4px base. Use these, never ad-hoc values. */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+
+  /* Type. System faces so the app reads as part of the OS. */
+  --font:
+    -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", system-ui, "Cantarell",
+    "Noto Sans", "Helvetica Neue", sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", "DejaVu Sans Mono", monospace;
+  --t-xs: 11.5px;
+  --t-sm: 12.5px;
+  --t-md: 14px;
+  --t-lg: 16px;
+  --t-xl: 18px;
+  --t-title: 21px;
+  --lh-tight: 1.3;
+  --lh: 1.5;
+  --lh-read: 1.6;
+
+  --r-sm: 5px;
+  --r-md: 8px;
+  --r-lg: 14px;
+
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --fast: 90ms;
+  --quick: 140ms;
+
+  --sidebar: 228px;
+  --measure: 680px;
+}
+
+/* Dark is the default: it is where a capture tool spends most of its life. */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #17171a;
+  --bg-sunken: #131316;
+  --surface: #1e1e22;
+  --surface-raised: #232328;
+  --hover: rgba(255, 255, 255, 0.05);
+  --active: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --text: #ededef;
+  --text-muted: #a0a0a9;
+  --text-faint: #74747e;
+  /* The one accent: the amber of the caret. */
+  --accent: #e5a84b;
+  --accent-soft: rgba(229, 168, 75, 0.14);
+  --on-accent: #1b1407;
+  --danger: #f0736a;
+  --danger-soft: rgba(240, 115, 106, 0.12);
+  --ok: #6fbf8b;
+  --shadow-float: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 12px 36px rgba(0, 0, 0, 0.45);
+  --shadow-pop: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f6f4;
+  --bg-sunken: #eeeeeb;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --hover: rgba(20, 20, 25, 0.045);
+  --active: rgba(20, 20, 25, 0.08);
+  --border: rgba(20, 20, 25, 0.1);
+  --border-strong: rgba(20, 20, 25, 0.18);
+  --text: #1d1d20;
+  --text-muted: #5f5f68;
+  --text-faint: #85858e;
+  --accent: #a2640c;
+  --accent-soft: rgba(162, 100, 12, 0.1);
+  --on-accent: #ffffff;
+  --danger: #c0352b;
+  --danger-soft: rgba(192, 53, 43, 0.08);
+  --ok: #2f7d4f;
+  --shadow-float: 0 0 0 1px rgba(20, 20, 25, 0.1), 0 10px 30px rgba(20, 20, 25, 0.16);
+  --shadow-pop: 0 0 0 1px rgba(20, 20, 25, 0.08), 0 4px 14px rgba(20, 20, 25, 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --fast: 0ms;
+    --quick: 0ms;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+}
