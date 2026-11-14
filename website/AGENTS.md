@@ -20,6 +20,11 @@ from that data and are not re-themed at runtime. The GitHub star count in
 the header is fetched from the GitHub API at build time only and baked into
 the static HTML; the page still makes no runtime requests to anyone.
 
+Copy tone: this site is for non-technical readers. Plain language and
+benefits first — no protocol names, file formats, file paths or build
+commands in the primary sections. Developer details live only in the quiet
+"Comfortable with a terminal?" block of the Get-it section.
+
 Tests: `npm test` (share-code, contrast, derivation — derivation is pinned
 to the app's Rust golden values). Formatting: `npm run format`. Never edit
 files outside `website/` and `docs/` when working on the site.

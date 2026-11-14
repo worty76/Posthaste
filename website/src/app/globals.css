@@ -23,9 +23,10 @@
   --r-lg: 6px;
   --desk: color-mix(in srgb, var(--text) 5%, var(--bg));
 
-  /* Type. Bricolage carries identity; the body wears Ink's mono face. */
+  /* Type. Bricolage carries identity; Nunito keeps body copy friendly for
+     everyone. Mono appears only where an actual code is shown. */
   --font-head: var(--font-bricolage), system-ui, sans-serif;
-  --font-body: var(--font-jbmono), ui-monospace, "SF Mono", monospace;
+  --font-body: var(--font-nunito), ui-rounded, system-ui, sans-serif;
   --font-code: var(--font-jbmono), ui-monospace, monospace;
 
   --t-xs: 0.8125rem;
@@ -917,40 +918,6 @@ kbd {
   color: var(--muted);
   margin: 0 0 4px;
   font-weight: 600;
-}
-.data-paths {
-  margin-top: 8px;
-  display: grid;
-  gap: 6px;
-}
-.data-paths code {
-  display: block;
-  padding: 8px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  color: var(--muted);
-  font-size: var(--t-xs);
-  overflow-wrap: anywhere;
-}
-
-/* Under the hood. */
-.hood {
-  margin: 0;
-  display: grid;
-  gap: 8px;
-  padding: 18px;
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface);
-  color: var(--muted);
-  font-family: var(--font-code);
-  font-size: var(--t-sm);
-  overflow-wrap: anywhere;
-}
-.hood b {
-  color: var(--text);
-  font-weight: 400;
 }
 
 /* Get it. */

@@ -11,10 +11,10 @@ import { PRODUCT } from "@/config";
 
 const MINIATURE_NOTES: Record<string, { note: string; category: string }> = {
   "strawberry-milk": { note: "Smoothie: banana, oat milk", category: "home" },
-  matcha: { note: "Read: how FTS5 tokenises", category: "dev" },
+  matcha: { note: "Call grandma on Sunday", category: "home" },
   "lavender-haze": { note: "Sketch: sticker ideas", category: "ideas" },
   "midnight-grape": { note: "Draft the demo script", category: "work" },
-  blueberry: { note: "Ship the type scale", category: "dev" },
+  blueberry: { note: "Finish the book chapter", category: "goals" },
   ink: { note: "Gather receipts, ugh", category: "life" },
 };
 
@@ -69,8 +69,8 @@ export default async function Page() {
               A thought goes down in two seconds. You're back.
             </h1>
             <p className="hero__sub">
-              Press a shortcut anywhere, type, press Enter. The window is gone and the note waits in
-              your inbox. Free, local, no account.
+              Press one shortcut, type what's on your mind, press Enter. Done — the note is saved
+              and you're back to whatever you were doing. Free, private, no account.
             </p>
             <HeroActions />
           </div>
@@ -83,25 +83,25 @@ export default async function Page() {
             How it works
           </h2>
           <p className="section__lede">
-            Three beats, no wizard. The keys below match your system; the toggle shows the others.
+            Three beats, no setup, nothing to learn up front. The keys below match your system; the
+            toggle shows the others.
           </p>
           <HowItWorks />
         </section>
 
-        {/* 3. The inbox, with a small interactive sample. */}
+        {/* 3. Your notes stay organized and easy to find. */}
         <section className="section" aria-labelledby="inbox-title">
           <h2 className="section__title" id="inbox-title">
-            Your inbox, when you're ready
+            Everything you save, easy to find
           </h2>
           <p className="section__lede">
-            Notes land in the inbox. Today shows what you captured today; Archive keeps finished
-            things out of the way but searchable. Search is instant full-text — prefixes match,
-            accents don't matter.
+            Notes land in your inbox. Finished ones move to the archive, out of the way but never
+            gone. Looking for something? Search finds any note in a blink — even years later.
           </p>
           <div className="inbox-grid">
             <MiniInbox />
             <div className="keys-legend">
-              <h3>Try the keys</h3>
+              <h3>Try it with the keyboard</h3>
               <div className="keys-legend__row">
                 <span>Move</span>
                 <span>
@@ -115,33 +115,38 @@ export default async function Page() {
                 </span>
               </div>
               <div className="keys-legend__row">
-                <span>Filter</span>
+                <span>Search</span>
                 <span>
                   <kbd>/</kbd>
                 </span>
               </div>
               <div className="keys-legend__row">
-                <span>Clear filter</span>
+                <span>Clear</span>
                 <span>
                   <kbd>esc</kbd>
                 </span>
               </div>
               <p style={{ color: "var(--muted)", fontSize: "var(--t-sm)", margin: 0 }}>
-                Every list in the app works this way. The sample notes are made up; yours never
-                leave your machine.
+                Prefer the mouse? Everything works with a click too — shortcuts are just faster once
+                you're used to them.
               </p>
             </div>
           </div>
+          <p className="section__note">
+            Changed your mind about deleting something? It sits in a trash for 24 hours first — undo
+            is always one click away. And your notes save instantly, so nothing is lost even if your
+            computer gives up.
+          </p>
         </section>
 
-        {/* 4. Looks: six live miniatures, make-your-own toy, share codes. */}
+        {/* 4. Looks: six live miniatures, make-your-own toy. */}
         <section className="section" aria-labelledby="looks-title">
           <h2 className="section__title" id="looks-title">
-            Six looks. Make your own.
+            Make it yours
           </h2>
           <p className="section__lede">
-            A look is four colours, a corner shape and a font style. These are the six that ship
-            with the app — this page wears Ink.
+            Change the whole mood of the app — six ready-made looks, from soft Strawberry Milk to
+            all-black Ink. Or mix your own colors in seconds.
           </p>
           <div className="looks-grid">
             {LOOKS.map((look) => {
@@ -157,83 +162,63 @@ export default async function Page() {
             })}
           </div>
           <p className="section__lede" style={{ marginBottom: 16 }}>
-            "Make your own" mixes four colours with a live preview and refuses anything hard to
-            read. Try making the text faint:
+            "Make your own" lets you pick any colors you like — and the app checks that everything
+            stays readable. If a combination is too hard on the eyes, it tells you instead of saving
+            it:
           </p>
           <ContrastToy />
           <p className="section__lede" style={{ marginTop: 26, marginBottom: 0 }}>
-            Looks travel as one line of text. A friend pastes it into{" "}
-            <strong>Add from code…</strong> in their settings. No account, no upload; the code is
-            checked for readability before anything applies.
+            Found a look you love? Send it to a friend as a single line of text — they paste it in
+            and instantly have the exact same theme. No account needed; it all happens in a chat.
           </p>
           <ShareCodeRow />
         </section>
 
-        {/* 5. Privacy, stated as construction not promise. */}
+        {/* 5. Privacy, in plain words. */}
         <section className="section" aria-labelledby="privacy-title">
           <h2 className="section__title" id="privacy-title">
-            Private by construction
+            Your notes stay yours
           </h2>
           <p className="section__lede">
-            Not a promise about policy — a fact about how it is built. There is nothing to send
-            anywhere.
+            Everything happens on your computer. There's no account to make, nothing to send, and no
+            one reading over your shoulder.
           </p>
           <div className="privacy-grid">
             <div>
               <ul className="privacy-list privacy-list--no">
                 <li>No account</li>
-                <li>No network requests</li>
-                <li>No telemetry or analytics</li>
-                <li>No AI processing</li>
-                <li>Logs never contain note text</li>
+                <li>No internet needed</li>
+                <li>No tracking of any kind</li>
+                <li>No AI reading your notes</li>
+                <li>Even the app's logs skip your note text</li>
               </ul>
               <ul className="privacy-list privacy-list--yes" style={{ marginTop: 18 }}>
-                <li>Notes, drafts and looks live in one SQLite file</li>
+                <li>Notes, drafts and themes live in one file on your computer</li>
                 <li>Export, import and backup are files you keep</li>
                 <li>This page makes no third-party requests either</li>
               </ul>
             </div>
             <div>
-              <h3 style={{ fontSize: "var(--t-md)", marginBottom: 8 }}>Where your notes live</h3>
-              <div className="data-paths">
-                <code>macOS: ~/Library/Application Support/dev.posthaste.desktop/posthaste.db</code>
-                <code>Windows: %APPDATA%\dev.posthaste.desktop\posthaste.db</code>
-                <code>Linux: ~/.local/share/dev.posthaste.desktop/posthaste.db</code>
-              </div>
+              <h3 style={{ fontSize: "var(--t-md)", marginBottom: 8 }}>What that means for you</h3>
+              <p
+                style={{ color: "var(--muted)", fontSize: "var(--t-sm)", lineHeight: "var(--lh)" }}
+              >
+                Your notes can't leak, because they never leave your machine. You could go offline
+                forever and nothing would change. Want a copy? Export everything to a single file
+                whenever you like.
+              </p>
             </div>
           </div>
         </section>
 
-        {/* 6. Under the hood, for developers. */}
-        <section className="section" aria-labelledby="hood-title">
-          <h2 className="section__title" id="hood-title">
-            Under the hood
-          </h2>
-          <p className="section__lede">Four lines, because that is what it is.</p>
-          <div className="hood">
-            <span>
-              <b>Rust, SQLite, Tauri 2</b> — a small desktop binary, no runtime to install.
-            </span>
-            <span>
-              <b>WAL journal, synchronous=FULL</b> — "saved" means committed to disk.
-            </span>
-            <span>
-              <b>SQLite FTS5</b> — instant prefix search that ignores accents.
-            </span>
-            <span>
-              <b>Versioned migrations</b> — a snapshot is written before every upgrade; the trash
-              empties after 24 hours.
-            </span>
-          </div>
-        </section>
-
-        {/* 7. Get it. */}
+        {/* 6. Get it. */}
         <section className="section" aria-labelledby="get-title" id="get-it">
           <h2 className="section__title" id="get-title">
             Get it
           </h2>
           <p className="section__lede">
-            Free. The installers arrive with the first release; until then, build from source.
+            Free, and always local. Installers are on their way; for now you can grab the source
+            code and run it yourself.
           </p>
           <div className="get-grid">
             <div className="get-rows">
@@ -251,19 +236,23 @@ export default async function Page() {
                   <div className="get-row" key={p.key}>
                     <div>
                       <div className="get-row__name">{p.name}</div>
-                      <div className="get-row__note">Installer not out yet</div>
+                      <div className="get-row__note">Installer coming soon</div>
                     </div>
-                    <a className="btn" href={`${PRODUCT.repoUrl}#readme`}>
-                      Build from source
+                    <a className="btn" href={PRODUCT.repoUrl}>
+                      View on GitHub
                     </a>
                   </div>
                 ),
               )}
               <p className="early-note">
-                Early release: tested on Linux; macOS and Windows builds are next.
+                Early release: carefully tested on Linux so far; macOS and Windows installers are
+                next.
               </p>
             </div>
             <div>
+              <h3 style={{ fontSize: "var(--t-md)", marginBottom: 8 }}>
+                Comfortable with a terminal?
+              </h3>
               <pre className="build-snippet">
                 <b>git</b> clone {PRODUCT.repoUrl}
                 <br />
@@ -274,14 +263,14 @@ export default async function Page() {
                 <b>npm</b> run tauri build
               </pre>
               <p style={{ color: "var(--muted)", fontSize: "var(--t-sm)", marginTop: 10 }}>
-                The README in the repository walks through prerequisites per OS.
+                The repository's README walks you through it step by step.
               </p>
             </div>
           </div>
         </section>
       </main>
 
-      {/* 8. Footer. */}
+      {/* 7. Footer. */}
       <footer className="page site-foot">
         <span>No analytics, no cookies, no third-party requests on this page.</span>
         <span>

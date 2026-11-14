@@ -39,7 +39,9 @@ export function HowItWorks() {
       <div className="beats" data-os={mounted ? chosen : undefined}>
         <div className="beat">
           <h3>Press the shortcut</h3>
-          <p>From any app. A small window appears, already focused.</p>
+          <p>
+            Works in any app — writing, browsing, chatting. A small window appears, ready to type.
+          </p>
           {OSES.map((o) => (
             <span key={o} className="beat__keys" data-os={o}>
               <Keys keys={SHORTCUTS[o].capture} />
@@ -48,7 +50,10 @@ export function HowItWorks() {
         </div>
         <div className="beat">
           <h3>Type, press Enter</h3>
-          <p>Shift+Enter adds a line; Ctrl/Cmd+Enter saves and stays for another note.</p>
+          <p>
+            That's it — the note is saved. Need a second thought? The window stays open for one
+            more.
+          </p>
           <span className="beat__keys" data-os="all">
             <kbd>↵</kbd>
             <kbd>⇧</kbd>
@@ -59,7 +64,7 @@ export function HowItWorks() {
         </div>
         <div className="beat">
           <h3>You're back</h3>
-          <p>Focus returns to what you were doing. The note waits in the inbox.</p>
+          <p>Focus returns to whatever you were doing. The note waits in your inbox for later.</p>
           <span className="beat__keys" data-os="all">
             <kbd>esc</kbd>
             <span style={{ alignSelf: "center", fontSize: "var(--t-xs)", color: "var(--muted)" }}>
