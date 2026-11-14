@@ -1,11 +1,10 @@
-import { LookProvider } from "@/components/LookProvider";
-import { LookPicker } from "@/components/LookPicker";
 import { ShareCodeRow } from "@/components/ShareCodeRow";
 import { HeroDemo } from "@/components/HeroDemo";
 import { HeroActions } from "@/components/HeroActions";
 import { HowItWorks } from "@/components/HowItWorks";
 import { MiniInbox } from "@/components/MiniInbox";
 import { ContrastToy } from "@/components/ContrastToy";
+import { GitHubMark, StarIcon } from "@/components/icons";
 import { LookMiniature } from "@/components/mini";
 import { LOOKS } from "@/lib/looks";
 import { PRODUCT } from "@/config";
@@ -25,21 +24,45 @@ const PLATFORMS: { key: "mac" | "windows" | "linux"; name: string }[] = [
   { key: "linux", name: "Linux" },
 ];
 
-export default function Page() {
+/** Stargazer count, fetched once at build time and baked into the static
+    HTML. The page itself still makes no runtime requests to anyone; when
+    the API is unreachable the count simply does not render. */
+async function getStars(): Promise<number | null> {
+  try {
+    const res = await fetch("https://api.github.com/repos/worty76/Posthaste", {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { stargazers_count?: unknown };
+    return typeof data.stargazers_count === "number" ? data.stargazers_count : null;
+  } catch {
+    return null;
+  }
+}
+
+export default async function Page() {
+  const stars = await getStars();
+
   return (
-    <LookProvider>
+    <>
       <header className="page site-head">
         <a className="wordmark" href="/">
           Posthaste
         </a>
         <span className="site-head__spacer" />
-        <a className="site-head__link" href={PRODUCT.repoUrl}>
-          GitHub
+        {stars !== null && (
+          <a className="site-head__stars" href={`${PRODUCT.repoUrl}/stargazers`}>
+            <StarIcon />
+            {stars}
+          </a>
+        )}
+        <a className="site-head__icon" href={PRODUCT.repoUrl} aria-label="Posthaste on GitHub">
+          <GitHubMark />
         </a>
       </header>
 
       <main className="page">
-        {/* 1. Hero: promise, working demo, actions, look picker, share code. */}
+        {/* 1. Hero: promise, working demo, actions. */}
         <section className="hero" aria-labelledby="hero-title">
           <div>
             <h1 className="hero__title" id="hero-title">
@@ -50,10 +73,6 @@ export default function Page() {
               your inbox. Free, local, no account.
             </p>
             <HeroActions />
-            <div className="hero__picker">
-              <LookPicker />
-              <ShareCodeRow />
-            </div>
           </div>
           <HeroDemo />
         </section>
@@ -121,8 +140,8 @@ export default function Page() {
             Six looks. Make your own.
           </h2>
           <p className="section__lede">
-            A look is four colours, a corner shape and a font style — and the picker at the top
-            already dressed this whole page in one. These are the six that ship with the app.
+            A look is four colours, a corner shape and a font style. These are the six that ship
+            with the app — this page wears Ink.
           </p>
           <div className="looks-grid">
             {LOOKS.map((look) => {
@@ -143,11 +162,11 @@ export default function Page() {
           </p>
           <ContrastToy />
           <p className="section__lede" style={{ marginTop: 26, marginBottom: 0 }}>
-            Looks travel as one line of text — the code next to the picker at the top encodes the
-            look you have chosen. A friend pastes it into <strong>Add from code…</strong> in their
-            settings. No account, no upload; the code is checked for readability before anything
-            applies.
+            Looks travel as one line of text. A friend pastes it into{" "}
+            <strong>Add from code…</strong> in their settings. No account, no upload; the code is
+            checked for readability before anything applies.
           </p>
+          <ShareCodeRow />
         </section>
 
         {/* 5. Privacy, stated as construction not promise. */}
@@ -269,6 +288,6 @@ export default function Page() {
           Posthaste {PRODUCT.version} · <a href={PRODUCT.repoUrl}>source</a>
         </span>
       </footer>
-    </LookProvider>
+    </>
   );
 }

@@ -1,33 +1,31 @@
-/* Posthaste marketing site. Tokens mirror the app: defaults here are the
-   Strawberry Milk look, with Blueberry standing in for dark scheme before
-   JavaScript runs. LookProvider then applies the visitor's chosen look by
-   setting the same custom properties inline on <html> — the one place that
-   writes custom properties, exactly like the app's lib/appearance.ts. */
+/* Posthaste marketing site. The site wears the Ink look — the same tokens
+   the app derives for it (lib/derive.ts over lib/looks.ts). Colours are
+   static: nothing re-themes this page at runtime, and the only non-derived
+   values here are the ones pasted from the look data. */
 
 :root {
-  /* Strawberry Milk (light) — the six looks live only in lib/looks.ts;
-     these values are the pre-JavaScript default. */
-  --bg: #fff5f7;
-  --surface: #ffffff;
-  --text: #4a2c3a;
-  --accent: #ff8fb1;
-  --accent-ink: #96566c;
-  --accent-soft: rgba(255, 143, 177, 0.1);
-  --on-accent: #4a2c3a;
-  --muted: #806873;
-  --faint: #806873;
-  --border: rgba(74, 44, 58, 0.1);
-  --border-strong: rgba(74, 44, 58, 0.18);
-  --hover: rgba(74, 44, 58, 0.045);
-  --active: rgba(74, 44, 58, 0.08);
-  --r-sm: 8px;
-  --r-md: 14px;
-  --r-lg: 22px;
+  /* Ink (dark): bg #0f0f0f, surface #181818, text #f2f2f2, accent #ffffff. */
+  --bg: #0f0f0f;
+  --surface: #181818;
+  --text: #f2f2f2;
+  --accent: #ffffff;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(255, 255, 255, 0.14);
+  --on-accent: #0f0f0f;
+  --muted: #9c9c9c;
+  --faint: #7c7c7c;
+  --border: rgba(242, 242, 242, 0.08);
+  --border-strong: rgba(242, 242, 242, 0.14);
+  --hover: rgba(242, 242, 242, 0.05);
+  --active: rgba(242, 242, 242, 0.08);
+  --r-sm: 2px;
+  --r-md: 4px;
+  --r-lg: 6px;
   --desk: color-mix(in srgb, var(--text) 5%, var(--bg));
 
-  /* Type. Bricolage carries identity; the body follows the look. */
+  /* Type. Bricolage carries identity; the body wears Ink's mono face. */
   --font-head: var(--font-bricolage), system-ui, sans-serif;
-  --font-body: system-ui, sans-serif;
+  --font-body: var(--font-jbmono), ui-monospace, "SF Mono", monospace;
   --font-code: var(--font-jbmono), ui-monospace, monospace;
 
   --t-xs: 0.8125rem;
@@ -43,41 +41,6 @@
   --w-page: 1080px;
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --fast: 120ms;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Blueberry (dark) */
-    --bg: #121826;
-    --surface: #1a2236;
-    --text: #e6edff;
-    --accent: #6ea8ff;
-    --accent-ink: #6ea8ff;
-    --accent-soft: rgba(110, 168, 255, 0.14);
-    --on-accent: #121826;
-    --muted: #959cad;
-    --faint: #7c8393;
-    --border: rgba(230, 237, 255, 0.08);
-    --border-strong: rgba(230, 237, 255, 0.14);
-    --hover: rgba(230, 237, 255, 0.05);
-    --active: rgba(230, 237, 255, 0.08);
-  }
-}
-
-/* The look's font mode maps to a stack here, like the app's tokens.css. */
-html[data-font="system"] {
-  --font-body:
-    -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", system-ui, "Cantarell",
-    "Noto Sans", "Helvetica Neue", sans-serif;
-}
-html[data-font="rounded"] {
-  --font-body: var(--font-nunito), ui-rounded, "SF Pro Rounded", "Segoe UI", sans-serif;
-}
-html[data-font="serif"] {
-  --font-body: ui-serif, "New York", Georgia, serif;
-}
-html[data-font="mono"] {
-  --font-body: var(--font-jbmono), ui-monospace, "SF Mono", monospace;
 }
 
 /* ---- Base ---- */
@@ -203,6 +166,35 @@ kbd {
 .site-head__link {
   color: var(--muted);
   font-size: var(--t-sm);
+}
+.site-head__stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--muted);
+  font-family: var(--font-code);
+  font-size: var(--t-sm);
+  text-decoration: none;
+  transition: border-color var(--fast) var(--ease);
+}
+.site-head__stars:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.site-head__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--muted);
+  transition: color var(--fast) var(--ease);
+}
+.site-head__icon:hover {
+  color: var(--text);
 }
 
 /* ---- Buttons ---- */

@@ -14,8 +14,11 @@ beyond the shipped app. The page itself makes no third-party requests: no
 analytics, no cookies, no CDN fonts or embeds.
 
 The single source of look data is `src/lib/looks.ts`; every colour on the
-site comes from it or from `src/lib/derive.ts` over it. CSS custom
-properties are applied to `<html>` only by `src/components/LookProvider.tsx`.
+site comes from it or from `src/lib/derive.ts` over it. The site wears the
+Ink look statically — the token values in `src/app/globals.css` are derived
+from that data and are not re-themed at runtime. The GitHub star count in
+the header is fetched from the GitHub API at build time only and baked into
+the static HTML; the page still makes no runtime requests to anyone.
 
 Tests: `npm test` (share-code, contrast, derivation — derivation is pinned
 to the app's Rust golden values). Formatting: `npm run format`. Never edit

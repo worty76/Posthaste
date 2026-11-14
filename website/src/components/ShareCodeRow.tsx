@@ -1,11 +1,11 @@
 "use client";
 
-// The real share-code idea, shown with the real code: a one-line code for
-// the currently selected look, ready to copy. It encodes with the same
-// format the app imports via "Add from code…" — no account, no upload.
+// The real share-code idea, shown with a real code: this is the code for
+// Ink, the look the page wears. It encodes with the same format the app
+// imports via "Add from code…" — no account, no upload.
 
 import { useState } from "react";
-import { useLook } from "./LookProvider";
+import { lookById } from "@/lib/looks";
 import { encodeLookCode } from "@/lib/share-code";
 
 async function copyText(text: string): Promise<boolean> {
@@ -18,14 +18,14 @@ async function copyText(text: string): Promise<boolean> {
 }
 
 export function ShareCodeRow() {
-  const { look } = useLook();
+  const look = lookById("ink");
   const [copied, setCopied] = useState(false);
   const code = encodeLookCode(look);
 
   return (
     <div className="share-row">
       <p className="share-row__label" id="share-code-label">
-        Share {look.name} as a code
+        Share a look as a code
       </p>
       <div className="share-row__row">
         <input
@@ -51,7 +51,7 @@ export function ShareCodeRow() {
       <p className="share-row__note" aria-live="polite">
         {copied
           ? "Copied. A friend pastes it into Add from code… — it never leaves the chat."
-          : "Friends paste this into Add from code… — no account, no upload."}
+          : "This one is Ink, the look this page wears. Friends paste it into Add from code… — no account, no upload."}
       </p>
     </div>
   );

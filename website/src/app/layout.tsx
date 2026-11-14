@@ -4,18 +4,12 @@ import { PRODUCT } from "@/config";
 import "./globals.css";
 
 // Open-licence fonts, self-hosted (no CDN requests), licences in src/fonts/.
-// Bricolage Grotesque carries the site's identity; Nunito and JetBrains Mono
-// serve the looks whose font mode is rounded or mono.
+// Bricolage Grotesque carries the site's identity; JetBrains Mono is the
+// body face of the Ink look the site wears.
 const bricolage = localFont({
   src: "../fonts/bricolage-grotesque-latin-wght.woff2",
   variable: "--font-bricolage",
   weight: "200 800",
-  display: "swap",
-});
-const nunito = localFont({
-  src: "../fonts/nunito-latin-400.woff2",
-  variable: "--font-nunito",
-  weight: "400",
   display: "swap",
 });
 const jetbrains = localFont({
@@ -50,15 +44,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fff5f7" },
-    { media: "(prefers-color-scheme: dark)", color: "#121826" },
-  ],
+  themeColor: "#0f0f0f",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${nunito.variable} ${jetbrains.variable}`}>
+    <html lang="en" className={`${bricolage.variable} ${jetbrains.variable}`}>
       <body>{children}</body>
     </html>
   );

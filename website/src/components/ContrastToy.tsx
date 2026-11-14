@@ -4,7 +4,7 @@
 // the app's real validator. The wording of a rejection is the app's wording.
 
 import { useEffect, useMemo, useState } from "react";
-import { useLook } from "./LookProvider";
+import { lookById } from "@/lib/looks";
 import { contrast, parseHex, toHex } from "@/lib/contrast";
 import { TEXT_CONTRAST_MIN, ACCENT_FILL_MIN } from "@/lib/derive";
 
@@ -18,10 +18,10 @@ const FIELDS: { key: keyof Colors; label: string }[] = [
 ];
 
 export function ContrastToy() {
-  const { look } = useLook();
+  const look = lookById("ink");
   const [colors, setColors] = useState<Colors>(look.colors);
 
-  // Starting from the visitor's current look makes the toy feel connected.
+  // Starting from the look the page wears makes the toy feel connected.
   useEffect(() => setColors(look.colors), [look]);
 
   const warnings = useMemo(() => {
