@@ -80,6 +80,10 @@ are in `crates/platform`).
   intentionally have no version field; Tauri resolves it from Cargo.toml for
   the bundle, the updater manifest, the frontend's `app_info`, and the CI
   release tag. Bumping it there is the whole release.
+- Release notes write themselves: CI lists the commits between the previous
+  tag and the new one in the GitHub release body. A commit message is
+  user-facing text, so write it as one — say what changed, not what you did
+  to the repo.
 
 ## Style
 
