@@ -12,7 +12,7 @@ are in `crates/platform`).
 |---|---|
 | `lib.rs` | Startup order, plugin registration, command list, launch flags |
 | `commands.rs` | Every `#[tauri::command]`. Thin adapters only |
-| `windows.rs` | Creating, showing, hiding, placing both windows |
+| `windows.rs` | Creating, showing, hiding, placing all three windows |
 | `shortcuts.rs` | Global shortcut registration and its status report |
 | `tray.rs` | Tray icon and menu |
 | `state.rs` | `AppState`, database access, lock helper |
@@ -46,8 +46,9 @@ are in `crates/platform`).
 
 ## Windows and focus
 
-- Both windows are created once at startup, hidden, and reused. Do not create
-  or destroy windows per use; that is what keeps the shortcut fast.
+- All three windows (capture, today, main) are created once at startup,
+  hidden, and reused. Do not create or destroy windows per use; that is what
+  keeps the shortcuts fast.
 - Showing capture is ordered: record the foreground app, place the window,
   show, focus, emit `capture-shown`. Recording must happen before our window
   takes focus.
@@ -80,6 +81,10 @@ are in `crates/platform`).
   intentionally have no version field; Tauri resolves it from Cargo.toml for
   the bundle, the updater manifest, the frontend's `app_info`, and the CI
   release tag. Bumping it there is the whole release.
+- Release notes write themselves: CI lists the commits between the previous
+  tag and the new one in the GitHub release body. A commit message is
+  user-facing text, so write it as one — say what changed, not what you did
+  to the repo.
 
 ## Style
 

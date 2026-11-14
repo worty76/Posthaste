@@ -19,6 +19,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # release notes need the history between tags
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -43,3 +45,29 @@ jobs:
           releaseDraft: false
           prerelease: false
           includeUpdaterJson: true
+      - name: Fill the release notes from commits
+        if: matrix.platform == 'macos-latest' # one writer; the other legs only upload assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(grep -m1 '^version' src-tauri/Cargo.toml | cut -d'"' -f2)
+          TAG="v$VERSION"
+          PREV=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || true)
+          if [ -n "$PREV" ]; then
+            LOG=$(git log "$PREV..$TAG" --pretty=format:"- %s (%h)")
+            LINK="**Full changelog**: https://github.com/worty76/Posthaste/compare/$PREV...$TAG"
+          else
+            LOG=""
+            LINK=""
+          fi
+          if [ -z "$LOG" ]; then
+            LOG="- Maintenance build. No code changes since $PREV."
+          fi
+          {
+            echo "## What's changed"
+            echo
+            printf '%s\n' "$LOG"
+            echo
+            if [ -n "$LINK" ]; then printf '%s\n' "$LINK"; fi
+          } > notes.md
+          gh release edit "$TAG" --notes-file notes.md

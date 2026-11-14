@@ -1,8 +1,12 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "What the two Posthaste windows may ask the native side to do. Everything else goes through the app's own commands.",
-  "windows": ["main", "capture"],
+  "description": "What the three Posthaste windows may ask the native side to do. Everything else goes through the app's own commands.",
+  "windows": [
+    "main",
+    "capture",
+    "today"
+  ],
   "permissions": [
     "core:default",
     "core:window:allow-start-dragging",

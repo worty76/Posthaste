@@ -331,7 +331,7 @@ describe("settings", () => {
   it("shows where the database lives and that the shortcut is registered", async () => {
     await openSettings();
     expect(await screen.findByText("/data/posthaste.db")).toBeInTheDocument();
-    expect(screen.getAllByText("Registered and active.")).toHaveLength(2);
+    expect(screen.getAllByText("Registered and active.")).toHaveLength(3);
   });
 
   it("records a new shortcut from a key press", async () => {
@@ -354,7 +354,7 @@ describe("settings", () => {
     await user.click(screen.getByRole("button", { name: "Capture shortcut: change" }));
     await user.keyboard("{Alt>}{Shift>}n{/Shift}{/Alt}");
     expect(await screen.findByText(/Alt\+Shift\+N could not be registered/)).toBeInTheDocument();
-    expect(screen.getAllByText("Registered and active.")).toHaveLength(2);
+    expect(screen.getAllByText("Registered and active.")).toHaveLength(3);
   });
 
   it("restores the default shortcut", async () => {
@@ -375,7 +375,7 @@ describe("settings", () => {
     await openSettings({ session: "wayland" });
     expect(
       screen.getAllByText(/Registered, with a limitation. This is a Wayland session./),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
     expect(screen.getByText(/the compositor decides where windows appear/)).toBeInTheDocument();
   });
 
@@ -439,6 +439,29 @@ describe("settings", () => {
     expect(screen.queryByText(/Exported/)).toBeNull();
     await user.click(screen.getByRole("button", { name: "Export…" }));
     expect(await screen.findByText("Exported 12 notes")).toBeInTheDocument();
+  });
+
+  it("records a new Today shortcut from a key press", async () => {
+    const user = await openSettings();
+    await user.click(screen.getByRole("button", { name: "Today shortcut: change" }));
+    await user.keyboard("{Alt>}{Shift>}t{/Shift}{/Alt}");
+    await waitFor(() =>
+      expect(api.settingsUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ today_shortcut: "Alt+Shift+T" }),
+      ),
+    );
+  });
+
+  it("keeps the old Today shortcut and explains when the new one is taken", async () => {
+    api.settingsUpdate.mockRejectedValue({
+      code: "shortcut_unavailable",
+      message: "Alt+Shift+T could not be registered. Another application is probably using it.",
+    });
+    const user = await openSettings();
+    await user.click(screen.getByRole("button", { name: "Today shortcut: change" }));
+    await user.keyboard("{Alt>}{Shift>}t{/Shift}{/Alt}");
+    expect(await screen.findByText(/Alt\+Shift\+T could not be registered/)).toBeInTheDocument();
+    expect(screen.getAllByText("Registered and active.")).toHaveLength(3);
   });
 
   it("checks for updates on request and reports when current", async () => {

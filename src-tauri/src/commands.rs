@@ -7,7 +7,7 @@ use posthaste_core::look::derive::ResolvedLook;
 use posthaste_core::look::store::LookSummary;
 use posthaste_core::look::{code::encode_code, derive::resolve, LookDoc};
 use posthaste_core::{
-    Counts, DataInfo, Draft, ImportReport, NewNote, Note, NoteQuery, Settings, Status,
+    Counts, DataInfo, Draft, Glance, ImportReport, NewNote, Note, NoteQuery, Settings, Status,
 };
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, State};
@@ -133,6 +133,20 @@ pub fn categories_list(state: State<'_, AppState>) -> AppResult<Vec<String>> {
     state.with_db(|db| db.categories())
 }
 
+// ---- today --------------------------------------------------------------------
+
+/// What the Today window shows. Bounds are the caller's local day, exactly
+/// as `notes_counts` takes them.
+#[tauri::command]
+pub fn glance_get(state: State<'_, AppState>, today_from: i64, today_to: i64) -> AppResult<Glance> {
+    state.with_db(|db| db.glance(today_from, today_to))
+}
+
+#[tauri::command]
+pub fn today_dismiss(app: AppHandle) {
+    windows::hide_today(&app, true);
+}
+
 #[tauri::command]
 pub fn note_update(
     app: AppHandle,
@@ -217,12 +231,14 @@ pub fn settings_update(
     }
 
     let shortcuts_changed = settings.capture_shortcut != old.capture_shortcut
-        || settings.inbox_shortcut != old.inbox_shortcut;
+        || settings.inbox_shortcut != old.inbox_shortcut
+        || settings.today_shortcut != old.today_shortcut;
     if shortcuts_changed {
         let report = shortcuts::apply(&app, &settings);
         let failed = [
             (&report.capture, &old.capture_shortcut),
             (&report.inbox, &old.inbox_shortcut),
+            (&report.today, &old.today_shortcut),
         ]
         .into_iter()
         .find(|(s, previous)| {

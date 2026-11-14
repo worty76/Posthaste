@@ -4,11 +4,13 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { CaptureWindow } from "./capture/CaptureWindow";
 import { api, toAppError } from "./lib/ipc";
 import { MainWindow } from "./main/MainWindow";
+import { TodayWindow } from "./today/TodayWindow";
 import type { AppInfo } from "./lib/types";
 import "./styles/tokens.css";
 import "./styles/base.css";
 import "./styles/ui.css";
 import "./styles/capture.css";
+import "./styles/today.css";
 import "./styles/main.css";
 
 function Fatal({ message }: { message: string }) {
@@ -25,9 +27,12 @@ function Fatal({ message }: { message: string }) {
   );
 }
 
-// Both windows load this bundle; the window's label decides which UI it is.
-const isCapture = getCurrentWindow().label === "capture";
+// All three windows load this bundle; the window's label decides which UI it is.
+const label = getCurrentWindow().label;
+const isCapture = label === "capture";
+const isToday = label === "today";
 if (isCapture) document.documentElement.classList.add("is-capture");
+if (isToday) document.documentElement.classList.add("is-today");
 
 const root = createRoot(document.getElementById("root")!);
 
@@ -42,6 +47,8 @@ api.appInfo().then(
       <StrictMode>
         {isCapture ? (
           <CaptureWindow os={info.os} />
+        ) : isToday ? (
+          <TodayWindow os={info.os} />
         ) : info.startup_error ? (
           <Fatal message={info.startup_error.message} />
         ) : (
@@ -52,7 +59,13 @@ api.appInfo().then(
   },
   (e) => {
     root.render(
-      isCapture ? <CaptureWindow os={fallbackOs()} /> : <Fatal message={toAppError(e).message} />,
+      isCapture ? (
+        <CaptureWindow os={fallbackOs()} />
+      ) : isToday ? (
+        <TodayWindow os={fallbackOs()} />
+      ) : (
+        <Fatal message={toAppError(e).message} />
+      ),
     );
   },
 );

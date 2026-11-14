@@ -10,6 +10,7 @@ export const defaultSettings: Settings = {
   start_minimized: false,
   capture_shortcut: "CmdOrCtrl+Shift+Space",
   inbox_shortcut: "Ctrl+Alt+N",
+  today_shortcut: "Ctrl+Alt+G",
   capture_position: "center",
   hide_after_save: true,
   hide_on_blur: true,
@@ -27,6 +28,7 @@ export function settingsState(patch: Partial<Settings> = {}): SettingsState {
     shortcuts: {
       capture: { accelerator: "CmdOrCtrl+Shift+Space", registered: true, error: null },
       inbox: { accelerator: "Ctrl+Alt+N", registered: true, error: null },
+      today: { accelerator: "Ctrl+Alt+G", registered: true, error: null },
       limitation: null,
     },
   };
@@ -66,6 +68,8 @@ export const api = {
   notesList: vi.fn(),
   notesCounts: vi.fn(),
   categoriesList: vi.fn(),
+  glanceGet: vi.fn(),
+  todayDismiss: vi.fn(),
   noteUpdate: vi.fn(),
   noteSetStatus: vi.fn(),
   noteDelete: vi.fn(),
@@ -101,6 +105,7 @@ export function resetIpc() {
   api.notesList.mockResolvedValue([]);
   api.notesCounts.mockResolvedValue({ inbox: 0, today: 0, archive: 0 });
   api.categoriesList.mockResolvedValue([]);
+  api.glanceGet.mockResolvedValue({ carried: [], today: [], done: 0, total: 0 });
   api.dataInfo.mockResolvedValue({
     path: "/data/posthaste.db",
     size_bytes: 4096,

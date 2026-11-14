@@ -268,6 +268,57 @@ impl Db {
         Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
     }
 
+    /// What the Today window shows. `day_from..day_to` is the caller's local
+    /// day in UTC ms, exactly as [`Db::counts`] takes it. Membership:
+    /// carried = open and created before the day; today = created in the day,
+    /// or completed within it however long ago it was written. Each list is
+    /// capped at [`GLANCE_GROUP_LIMIT`]; `done` and `total` never are.
+    pub fn glance(&self, day_from: i64, day_to: i64) -> Result<Glance> {
+        let mut carried = self.conn.prepare_cached(&format!(
+            "SELECT {NOTE_COLUMNS} FROM notes
+             WHERE deleted_at IS NULL AND status != 'archived'
+               AND status = 'inbox' AND created_at < ?1
+             ORDER BY created_at DESC, seq DESC LIMIT ?2"
+        ))?;
+        let carried = carried
+            .query_map(params![day_from, GLANCE_GROUP_LIMIT], note_from_row)?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
+
+        let mut today = self.conn.prepare_cached(&format!(
+            "SELECT {NOTE_COLUMNS} FROM notes
+             WHERE deleted_at IS NULL AND status != 'archived'
+               AND (
+                 (created_at >= ?1 AND created_at < ?2)
+                 OR (status = 'completed' AND completed_at >= ?1 AND completed_at < ?2)
+               )
+             ORDER BY (status = 'inbox') DESC, created_at DESC, seq DESC
+             LIMIT ?3"
+        ))?;
+        let today = today
+            .query_map(params![day_from, day_to, GLANCE_GROUP_LIMIT], note_from_row)?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
+
+        let (done, total) = self.conn.query_row(
+            "SELECT COALESCE(SUM(status = 'completed'), 0), COUNT(*)
+             FROM notes
+             WHERE deleted_at IS NULL AND status != 'archived'
+               AND (
+                 (status = 'inbox' AND created_at < ?1)
+                 OR (created_at >= ?1 AND created_at < ?2)
+                 OR (status = 'completed' AND completed_at >= ?1 AND completed_at < ?2)
+               )",
+            params![day_from, day_to],
+            |r| Ok((r.get::<_, i64>(0)?, r.get::<_, i64>(1)?)),
+        )?;
+
+        Ok(Glance {
+            carried,
+            today,
+            done,
+            total,
+        })
+    }
+
     // ---- drafts ----------------------------------------------------------
 
     /// Persists the in-progress capture. Empty content clears the draft.

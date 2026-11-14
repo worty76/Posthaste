@@ -30,6 +30,14 @@ export interface Counts {
   archive: number;
 }
 
+/** What the Today window shows for one day. Carry-over is derived: nothing is moved. */
+export interface Glance {
+  carried: Note[];
+  today: Note[];
+  done: number;
+  total: number;
+}
+
 export interface Draft {
   content: string;
   category: string | null;
@@ -48,6 +56,7 @@ export interface Settings {
   start_minimized: boolean;
   capture_shortcut: string;
   inbox_shortcut: string;
+  today_shortcut: string;
   capture_position: CapturePosition;
   hide_after_save: boolean;
   hide_on_blur: boolean;
@@ -122,6 +131,7 @@ export interface ShortcutStatus {
 export interface ShortcutReport {
   capture: ShortcutStatus;
   inbox: ShortcutStatus;
+  today: ShortcutStatus;
   limitation: string | null;
 }
 
@@ -169,3 +179,4 @@ export type View = "inbox" | "today" | "archive" | "settings";
 
 export const DEFAULT_CAPTURE_SHORTCUT = "CmdOrCtrl+Shift+Space";
 export const defaultInboxShortcut = (os: Os) => (os === "macos" ? "Cmd+Ctrl+N" : "Ctrl+Alt+N");
+export const defaultTodayShortcut = (os: Os) => (os === "macos" ? "Cmd+Ctrl+G" : "Ctrl+Alt+G");
