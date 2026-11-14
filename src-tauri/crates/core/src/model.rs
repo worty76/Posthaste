@@ -150,6 +150,8 @@ pub struct Settings {
     pub hide_on_blur: bool,
     pub enter_behavior: EnterBehavior,
     pub draft_retention: DraftRetention,
+    /// The selected look, `None` for the Default look (system/light/dark).
+    pub look_id: Option<String>,
 }
 
 impl Default for Settings {
@@ -165,6 +167,7 @@ impl Default for Settings {
             hide_on_blur: true,
             enter_behavior: EnterBehavior::Save,
             draft_retention: DraftRetention::Forever,
+            look_id: None,
         }
     }
 }

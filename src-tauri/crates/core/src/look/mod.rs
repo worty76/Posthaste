@@ -6,6 +6,7 @@ pub mod bundled;
 pub mod code;
 pub mod color;
 pub mod derive;
+pub mod store;
 
 #[cfg(test)]
 mod tests;

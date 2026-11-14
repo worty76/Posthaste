@@ -39,6 +39,12 @@ pub enum CoreError {
     #[error("{0}")]
     InvalidLook(String),
 
+    #[error("Built-in looks can't be changed or deleted. Make a copy to customize one.")]
+    BuiltinLook,
+
+    #[error("You already have 50 looks. Delete one to add another.")]
+    TooManyLooks,
+
     #[error("Database error: {0}")]
     Sqlite(#[source] rusqlite::Error),
 
@@ -61,6 +67,8 @@ impl CoreError {
             CoreError::Migration { .. } => "db_migration",
             CoreError::InvalidImport(_) => "invalid_import",
             CoreError::InvalidLook(_) => "look_invalid",
+            CoreError::BuiltinLook => "look_builtin",
+            CoreError::TooManyLooks => "look_limit",
             CoreError::Sqlite(_) => "db",
             CoreError::Io(_) => "io",
             CoreError::Json(_) => "json",

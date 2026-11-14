@@ -25,6 +25,10 @@ pub const MIGRATIONS: &[Migration] = &[
         version: 2,
         sql: include_str!("../migrations/0002_search.sql"),
     },
+    Migration {
+        version: 3,
+        sql: include_str!("../migrations/0003_looks.sql"),
+    },
 ];
 
 pub fn schema_version(conn: &Connection) -> Result<i64> {

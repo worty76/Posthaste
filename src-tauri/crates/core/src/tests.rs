@@ -680,7 +680,10 @@ fn upgrading_from_v1_keeps_notes_indexes_them_and_leaves_a_snapshot() {
     }
 
     let db = Db::open(&path).unwrap();
-    assert_eq!(db.info().unwrap().schema_version, 2);
+    assert_eq!(
+        db.info().unwrap().schema_version,
+        MIGRATIONS.last().unwrap().version
+    );
     assert_eq!(
         db.get_note("legacy-1").unwrap().content,
         "written before search existed"
@@ -695,6 +698,42 @@ fn upgrading_from_v1_keeps_notes_indexes_them_and_leaves_a_snapshot() {
         .query_row("SELECT COUNT(*) FROM notes", [], |r| r.get(0))
         .unwrap();
     assert_eq!(n, 1);
+}
+
+#[test]
+fn upgrading_from_v2_keeps_notes_and_adds_the_looks_table() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("posthaste.db");
+    {
+        // A database as version 2 of the app would have left it.
+        let mut conn = Connection::open(&path).unwrap();
+        migrations::migrate_with(&mut conn, Some(&path), &MIGRATIONS[..2]).unwrap();
+        conn.execute(
+            "INSERT INTO notes (id, content, created_at, updated_at)
+             VALUES ('legacy-2', 'written before looks existed', 1, 1)",
+            [],
+        )
+        .unwrap();
+    }
+
+    let db = Db::open(&path).unwrap();
+    assert_eq!(
+        db.info().unwrap().schema_version,
+        MIGRATIONS.last().unwrap().version
+    );
+    assert_eq!(
+        db.get_note("legacy-2").unwrap().content,
+        "written before looks existed"
+    );
+    let tables: i64 = db
+        .conn()
+        .query_row(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'looks'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(tables, 1);
 }
 
 #[test]
@@ -742,7 +781,7 @@ fn a_database_from_a_newer_version_is_refused_untouched() {
         Db::open(&path),
         Err(CoreError::NewerSchema {
             found: 999,
-            supported: 2
+            supported: 3
         })
     ));
     let conn = Connection::open(&path).unwrap();

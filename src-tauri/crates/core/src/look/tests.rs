@@ -712,3 +712,223 @@ mod bundled_tests {
         }
     }
 }
+
+mod store_tests {
+    use super::doc;
+    use crate::error::CoreError;
+    use crate::look::code::encode_code;
+    use crate::{Db, Settings};
+
+    /// The Strawberry Milk look with a different name, so saved looks are
+    /// distinguishable in the list.
+    fn named(name: &str) -> crate::look::LookDoc {
+        let mut d = doc();
+        d.name = name.into();
+        d
+    }
+
+    #[test]
+    fn a_fresh_database_lists_the_six_bundled_looks() {
+        let db = Db::open_in_memory().unwrap();
+        let looks = db.list_looks().unwrap();
+        assert_eq!(looks.len(), 6);
+        assert!(looks.iter().all(|l| l.builtin));
+        assert_eq!(looks[0].id, "builtin:strawberry-milk");
+        assert_eq!(looks[5].id, "builtin:ink");
+    }
+
+    #[test]
+    fn saved_looks_get_user_ids_and_list_after_the_bundled_ones_newest_first() {
+        let mut db = Db::open_in_memory().unwrap();
+        let a = db.save_look_at(named("Alpha"), None, 1_000).unwrap();
+        let b = db.save_look_at(named("Beta"), None, 2_000).unwrap();
+        assert!(a.id.starts_with("user:"));
+        assert!(b.id.starts_with("user:"));
+        assert_ne!(a.id, b.id);
+
+        let ids: Vec<String> = db.list_looks().unwrap().into_iter().map(|l| l.id).collect();
+        assert_eq!(ids.len(), 8);
+        assert_eq!(ids[6], b.id);
+        assert_eq!(ids[7], a.id);
+    }
+
+    #[test]
+    fn the_summary_preview_is_normalised() {
+        let mut db = Db::open_in_memory().unwrap();
+        let mut d = named("Upper");
+        d.colors.bg = "#FFF".into();
+        let s = db.save_look(d, None).unwrap();
+        assert!(!s.builtin);
+        assert_eq!(s.preview.bg, "#ffffff");
+    }
+
+    #[test]
+    fn saving_with_an_existing_id_updates_in_place() {
+        let mut db = Db::open_in_memory().unwrap();
+        let s = db.save_look_at(named("First"), None, 1_000).unwrap();
+        let updated = db
+            .save_look_at(named("Second"), Some(&s.id), 2_000)
+            .unwrap();
+        assert_eq!(updated.id, s.id);
+        assert_eq!(updated.name, "Second");
+        let (created, updated_at): (i64, i64) = db
+            .conn()
+            .query_row(
+                "SELECT created_at, updated_at FROM looks WHERE id = ?1",
+                [&s.id],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!((created, updated_at), (1_000, 2_000));
+        assert_eq!(db.list_looks().unwrap().len(), 7);
+    }
+
+    #[test]
+    fn updating_an_unknown_or_builtin_look_is_refused() {
+        let mut db = Db::open_in_memory().unwrap();
+        let d = named("X");
+        assert!(matches!(
+            db.save_look(d.clone(), Some("user:missing")),
+            Err(CoreError::NotFound)
+        ));
+        assert!(matches!(
+            db.save_look(d, Some("builtin:ink")),
+            Err(CoreError::BuiltinLook)
+        ));
+    }
+
+    #[test]
+    fn an_invalid_document_is_rejected_and_the_list_is_unchanged() {
+        let mut db = Db::open_in_memory().unwrap();
+        let mut d = named("Bad");
+        d.colors.text = d.colors.bg.clone();
+        assert!(matches!(
+            db.save_look(d, None),
+            Err(CoreError::InvalidLook(_))
+        ));
+        assert_eq!(db.list_looks().unwrap().len(), 6);
+    }
+
+    #[test]
+    fn the_fifty_look_limit_leaves_updates_alone() {
+        let mut db = Db::open_in_memory().unwrap();
+        let mut last = String::new();
+        for i in 0..50 {
+            last = db
+                .save_look_at(named(&format!("Look {i}")), None, i as i64)
+                .unwrap()
+                .id;
+        }
+        assert!(matches!(
+            db.save_look_at(named("One too many"), None, 100),
+            Err(CoreError::TooManyLooks)
+        ));
+        db.save_look_at(named("Renamed"), Some(&last), 200).unwrap();
+        assert_eq!(db.list_looks().unwrap().len(), 56);
+    }
+
+    #[test]
+    fn deleting_removes_user_looks_and_refuses_builtins() {
+        let mut db = Db::open_in_memory().unwrap();
+        let s = db.save_look(named("Doomed"), None).unwrap();
+        db.delete_look(&s.id).unwrap();
+        assert!(matches!(db.look_doc(&s.id), Err(CoreError::NotFound)));
+        assert!(matches!(
+            db.delete_look("builtin:ink"),
+            Err(CoreError::BuiltinLook)
+        ));
+        assert!(matches!(
+            db.delete_look("user:gone"),
+            Err(CoreError::NotFound)
+        ));
+    }
+
+    #[test]
+    fn the_active_look_follows_settings_and_falls_back_to_none() {
+        let mut db = Db::open_in_memory().unwrap();
+        assert_eq!(db.active_look().unwrap(), None);
+
+        db.save_settings(&Settings {
+            look_id: Some("builtin:ink".into()),
+            ..Default::default()
+        })
+        .unwrap();
+        let active = db.active_look().unwrap().expect("ink resolves");
+        assert_eq!(active.id, "builtin:ink");
+        assert_eq!(active.name, "Ink");
+
+        db.save_settings(&Settings {
+            look_id: Some("user:missing".into()),
+            ..Default::default()
+        })
+        .unwrap();
+        assert_eq!(db.active_look().unwrap(), None);
+
+        let s = db.save_look(named("Mine"), None).unwrap();
+        db.save_settings(&Settings {
+            look_id: Some(s.id.clone()),
+            ..Default::default()
+        })
+        .unwrap();
+        assert!(db.active_look().unwrap().is_some());
+        db.delete_look(&s.id).unwrap();
+        assert_eq!(db.active_look().unwrap(), None);
+    }
+
+    #[test]
+    fn a_corrupt_stored_row_is_skipped_without_breaking_the_list() {
+        let mut db = Db::open_in_memory().unwrap();
+        db.save_look(named("Good"), None).unwrap();
+        db.conn()
+            .execute(
+                "INSERT INTO looks (id, doc, created_at, updated_at)
+                 VALUES ('user:broken', '{not json', 1, 1)",
+                [],
+            )
+            .unwrap();
+        let looks = db.list_looks().unwrap();
+        assert_eq!(looks.len(), 7);
+        assert!(looks.iter().all(|l| l.id != "user:broken"));
+
+        db.save_settings(&Settings {
+            look_id: Some("user:broken".into()),
+            ..Default::default()
+        })
+        .unwrap();
+        assert_eq!(db.active_look().unwrap(), None);
+    }
+
+    #[test]
+    fn importing_a_code_stores_the_look_and_garbage_stores_nothing() {
+        let mut db = Db::open_in_memory().unwrap();
+        let s = db.import_look(&encode_code(&doc())).unwrap();
+        assert!(s.id.starts_with("user:"));
+        assert_eq!(s.name, "Strawberry Milk");
+        assert!(matches!(
+            db.import_look("hello"),
+            Err(CoreError::InvalidLook(_))
+        ));
+        assert_eq!(db.list_looks().unwrap().len(), 7);
+    }
+
+    #[test]
+    fn clear_all_removes_user_looks() {
+        let mut db = Db::open_in_memory().unwrap();
+        db.save_look(named("Mine"), None).unwrap();
+        db.clear_all().unwrap();
+        assert_eq!(db.list_looks().unwrap().len(), 6);
+    }
+
+    #[test]
+    fn settings_default_to_no_look_and_tolerate_older_settings() {
+        let db = Db::open_in_memory().unwrap();
+        assert_eq!(db.load_settings().unwrap().look_id, None);
+        db.conn()
+            .execute(
+                "INSERT OR REPLACE INTO settings (key, value) VALUES ('settings', '{\"theme\":\"dark\"}')",
+                [],
+            )
+            .unwrap();
+        assert_eq!(db.load_settings().unwrap().look_id, None);
+    }
+}
