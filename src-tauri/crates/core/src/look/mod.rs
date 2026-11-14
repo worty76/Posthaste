@@ -3,6 +3,7 @@
 //! else, so a look can never reach the DOM unchecked.
 
 pub mod color;
+pub mod derive;
 
 #[cfg(test)]
 mod tests;
