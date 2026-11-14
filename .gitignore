@@ -7,3 +7,6 @@ src-tauri/gen
 
 # Planning docs stay local, never pushed.
 /docs/superpowers/
+
+# Another planning doc that stays local.
+/docs/website-master-prompt.md
