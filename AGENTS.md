@@ -61,6 +61,7 @@ UI text, layout, keyboard handling      src/            (no business rules)
 Call to the native side                 src/lib/ipc.ts  (the only place)
 Colour, type, spacing, motion values    src/styles/tokens.css (the only place)
 Validation, persistence, search         src-tauri/crates/core
+Look validation and derivation          src-tauri/crates/core/src/look
 "Which app was focused", per-OS calls   src-tauri/crates/platform
 Windows, shortcuts, tray, commands      src-tauri/src
 ```

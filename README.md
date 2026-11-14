@@ -83,6 +83,23 @@ note, ⌘/Ctrl+, settings, ? shows this list.
 **Command line** (also how a second launch talks to the running app):
 `posthaste --capture`, `--inbox`, `--settings`, `--minimized`.
 
+## Looks
+
+A look is a small colour scheme — background, surface, text and one accent —
+plus a corner shape and a font style, that applies to both windows
+immediately. Settings → Appearance has the gallery: six bundled looks, and
+"Make your own" opens an editor that previews live and refuses any combination
+that would be hard to read.
+
+**Sharing**: pick a look, press "Copy share code", and send the one-line code
+to anyone. They paste it into "Add from code…" — no file, no account, and the
+code never leaves your chat app. Posthaste checks a pasted look for
+legibility (text contrast) before it can be used, whoever wrote it.
+
+Platform note: the Rounded font renders only where the OS provides a rounded
+face (macOS); on Windows and Linux it falls back to the system font.
+Looks are stored locally with your notes; "Clear data" removes them too.
+
 ## How it is built
 
 ```

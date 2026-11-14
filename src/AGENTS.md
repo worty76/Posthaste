@@ -77,6 +77,10 @@ test/        test setup and the IPC mock
 ## Styling from components
 
 - Classes only. No `style={{…}}`, no colour or pixel literals in TSX.
+  The one exception: data-driven colours (look previews) are passed as SVG
+  `fill` attributes, never as `style`.
+- CSS custom properties are written in exactly one place, `lib/appearance.ts`
+  (`setProperty`), which applies validated looks to the root element.
 - Class names are BEM-ish and scoped by block: `.note__meta`, `.btn--primary`.
 - State is exposed to CSS through ARIA or `data-*` attributes
   (`aria-checked`, `data-selected`), not through extra class toggling.

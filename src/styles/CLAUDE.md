@@ -54,15 +54,24 @@ what makes the app themeable: a theme changes token values and nothing else.
 - **Fonts** are system stacks. No web fonts, no bundled font files, no remote
   assets of any kind.
 
-## Themes (planned; follow this when building them)
+## Looks (implemented)
 
-- A theme is data: a set of values for existing tokens. It never contains
-  selectors, layout, or arbitrary CSS.
-- Only an allow-listed subset of tokens is themeable (colours, radii, font
-  stack choice from a fixed list). Spacing, sizes and layout are not.
-- Theme values are validated before use (type, range, contrast for text
-  tokens) and applied as custom properties on the root element. A theme that
-  fails validation is rejected whole, with a message; it is never partly
-  applied.
-- Themes come from other people. Treat every value as untrusted input: no
-  `url()`, no `@import`, nothing that can load a resource or run code.
+A look is user- or bundled data that recolours the app: four colours, a base
+(light/dark), a corner shape and a font style. The rules:
+
+- A look is data: a validated JSON document. It never contains selectors,
+  layout, or arbitrary CSS.
+- The allow-list and derivation live in Rust, `src-tauri/crates/core/src/look/derive.rs`:
+  a look document is validated there (hex-only colours, contrast floors) and
+  turned into a fixed set of CSS custom properties. The frontend never
+  computes a colour; `lib/appearance.ts` only applies the resulting token map
+  to the root element.
+- `shape` and `font` are ids, not values. Their pixel values and font stacks
+  live in `tokens.css` and are selected through `data-shape`/`data-font`.
+- Fills and decoration use `--accent`; text and focus indicators use
+  `--accent-ink`, which derivation keeps readable for any accent.
+- A look that fails validation is rejected whole, with a message; it is never
+  partly applied. If the selected look cannot be resolved the app shows
+  Default, never a broken UI.
+- Adding a themeable token means updating `derive.rs`, its golden tests, and
+  both the dark and the light block of `tokens.css` in the same change.

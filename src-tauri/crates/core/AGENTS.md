@@ -13,8 +13,15 @@ database file in milliseconds.
 | `model.rs` | Types shared with the frontend (serde) |
 | `migrations.rs` + `migrations/*.sql` | Schema history |
 | `transfer.rs` | JSON export and import |
+| `look/` | Looks: document validation, token derivation, share codes, storage. Tests in `look/tests.rs` |
 | `error.rs` | `CoreError` and its stable `code()` |
-| `tests.rs` | All tests for this crate |
+| `tests.rs` | Tests for db, model and migrations |
+
+Look-specific rules: look validation and derivation live only in `look/`
+(`mod.rs` validates, `derive.rs` derives the token map); the bundled looks are
+data files in `crates/core/looks/`, parsed by `look/bundled.rs` and kept valid
+by tests. A user look is stored as its re-serialized JSON in the `looks`
+table; unreadable rows are skipped, never trusted.
 
 ## Data safety
 
